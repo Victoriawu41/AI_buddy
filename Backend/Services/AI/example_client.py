@@ -10,7 +10,7 @@ def main():
             break
         
         response = requests.post(
-            'http://127.0.0.1:5000/chat',
+            'http://127.0.0.1:8000/ai/chat',  # Updated URL to go through the gateway
             json={"user_name": user_name, "messages": [{"role": "user", "content": user_input}]}
         )
         
