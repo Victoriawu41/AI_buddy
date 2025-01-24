@@ -26,6 +26,9 @@ const Chat = () => {
 
   const handleSend = async (e) => {
     e.preventDefault();
+    if (!inputMessage.trim()) {
+      return;
+    }
     const newMessage = { role: 'user', content: inputMessage };
     const loadingMessage = { role: 'bot', content: '<SPINNER>' };
     setChatHistory([...chatHistory, newMessage, loadingMessage]);
@@ -67,6 +70,12 @@ const Chat = () => {
     }
   }
 
+  const handleInputChange = (e) => {
+    setInputMessage(e.target.value);
+    e.target.style.height = 'auto';
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 600)}px`;
+  };
+
   const formatMessage = (message) => {
     if (message.includes('<SPINNER>')) {
       return <div className="spinner" />;
@@ -76,7 +85,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="container" style={{ height: '100vh', overflow: 'hidden' }}>
+    <div className="container" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
       <div className="card" style={{ height: '100%', width: '100%' }}>
         <div className="card-body" style={{ flex: 1, overflowY: 'scroll' }}>
           <div className="messages custom-markdown">
@@ -89,12 +98,13 @@ const Chat = () => {
         </div>
         
         <div className="card-footer d-flex">
-          <input
-            type="text"
+          <textarea
             className="form-control me-2"
             placeholder="Type your message..."
             value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
+            onChange={handleInputChange}
+            rows="1"
+            style={{ overflow: 'hidden', maxHeight: '600px' }} // Limit the height to 200px
           />
           <button className="btn btn-primary" onClick={handleSend}>Send</button>
         </div>

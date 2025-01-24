@@ -30,9 +30,9 @@ body, html {
 }
 
 .card-body {
-  padding: 20px;
+  padding: 0px;
   background-color: #ffffff;
-  height: calc(100% - 120px); /* Adjust height to fit within the card */
+  height: calc(100% - 20px); /* Adjust height to fit within the card */
   overflow-y: auto;
 }
 
