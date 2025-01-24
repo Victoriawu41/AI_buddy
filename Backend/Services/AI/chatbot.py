@@ -1,15 +1,16 @@
 import httpx
 import json
 import base64
+import os
 
 CHATBOT_NAME = "Martha"
 SYSTEM_PROMPT = f"You are {CHATBOT_NAME}, a witty character who loves to engage in fun and lively conversations."
 
 class Chatbot:
     def __init__(self):
-        self.api_key = "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"
-        self.base_url = "https://api.groq.com/openai/v1"
-        self.model = "llama-3.3-70b-versatile"
+        self.api_key = os.getenv("TOGETHER_API_KEY")
+        self.base_url = "https://api.together.xyz/v1"
+        self.model = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
 
         # Build prompt
         self.messages = [{"role": "user", "content": SYSTEM_PROMPT}]
@@ -40,6 +41,7 @@ class Chatbot:
                 with client.stream("POST", url, headers=headers, json=data) as response:
                     response.raise_for_status()
                     
+                    full_response = []
                     for line in response.iter_lines():
                         if line:
                             if line == "data: [DONE]":
@@ -49,7 +51,10 @@ class Chatbot:
                             if "choices" in data:
                                 chunk = data["choices"][0]["delta"].get("content", "")
                                 if chunk:
+                                    full_response.append(chunk)
                                     yield chunk
+
+                    self.messages.append({"role": "assistant", "content": f"{''.join(full_response)}"})
                                     
 
         except httpx.HTTPStatusError as ex:

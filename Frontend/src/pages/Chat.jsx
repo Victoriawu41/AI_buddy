@@ -1,52 +1,102 @@
-import React, { useState } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect } from 'react'
+import hljs from 'highlight.js'
+// import 'highlight.js/styles/atom-one-dark-reasonable.css'
+import './Chat.css'
+// import 'katex/dist/katex.min.css'
+import { Markdown } from '../widgets/Markdown'
 
 const Chat = () => {
-  const [outputMessage, setOutputMessage] = useState([]);           // Respond
-  const [inputMessage, setInputMessage] = useState('');             // Request
+  const [chatHistory, setChatHistory] = useState([]);           // Chat history
+  const [inputMessage, setInputMessage] = useState('');         // Request
+
+  useEffect(() => {
+    fetch('http://localhost:8000/ai/chat/messages')
+      .then(res => res.json())
+      .then(data => {
+        setChatHistory(data);
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    document.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightBlock(block);
+    });
+  }, [chatHistory]);
 
   const handleSend = async (e) => {
-    e.preventDefault()
-    try {
-        const response = await axios.post('http://localhost:8000/ai/chat', {
-          messages: [{ role: 'user', content: inputMessage }],
-          user_name: "User",
-        })
+    e.preventDefault();
+    const newMessage = { role: 'user', content: inputMessage };
+    const loadingMessage = { role: 'bot', content: '<SPINNER>' };
+    setChatHistory([...chatHistory, newMessage, loadingMessage]);
+    setInputMessage('');
 
-        if (response.status === 200) {
-          console.log("DATA RECEIVED")
-          setOutputMessage(response.data.results);
-        }
+    try {
+      const response = await fetch('http://localhost:8000/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: inputMessage }], user_name: "User" })
+      });
+      const reader = response.body.getReader();
+      let partialContent = '';
+      setChatHistory((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: 'bot', content: '' };
+        return updated;
+      });
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        partialContent = partialContent.replace(/▓$/, '');
+        partialContent += new TextDecoder().decode(value) + '▓';
+        setChatHistory((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1].content = partialContent;
+          return updated;
+        });
+      }
+      // Remove the trailing ASCII 178 symbol
+      partialContent = partialContent.replace(/▓$/, '');
+      setChatHistory((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1].content = partialContent;
+        return updated;
+      });
     } catch (err) {
-        console.error(error.response.data.message);
+      console.error(err);
     }
-}
+  }
+
+  const formatMessage = (message) => {
+    if (message.includes('<SPINNER>')) {
+      return <div className="spinner" />;
+    }
+
+    return <Markdown content={message} />;
+  }
 
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-12 col-md-6">
-          <div className="card">
-            <div className="card-header text-center">
-              <h4>Chatbot</h4>
-            </div>
-
-            <div className="card-body" style={{ height: '400px', overflowY: 'scroll' }}>
-              <div className="messages">
-                {outputMessage}
+    <div className="container" style={{ height: '100vh', overflow: 'hidden' }}>
+      <div className="card" style={{ height: '100%', width: '100%' }}>
+        <div className="card-body" style={{ flex: 1, overflowY: 'scroll' }}>
+          <div className="messages custom-markdown">
+            {chatHistory.map((message, index) => (
+              <div key={index} className={`message ${message.role}`}>
+                {formatMessage(message.content)}
               </div>
-            </div>
-            
-            <div className="card-footer d-flex">
-              <input
-                type="text"
-                className="form-control me-2"
-                placeholder="Type your message..."
-                onChange={(e) => setInputMessage(e.target.value)}
-              />
-              <button className="btn btn-primary" onClick={handleSend}>Send</button>
-            </div>
+            ))}
           </div>
+        </div>
+        
+        <div className="card-footer d-flex">
+          <input
+            type="text"
+            className="form-control me-2"
+            placeholder="Type your message..."
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+          />
+          <button className="btn btn-primary" onClick={handleSend}>Send</button>
         </div>
       </div>
     </div>
