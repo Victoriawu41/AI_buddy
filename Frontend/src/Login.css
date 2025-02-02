@@ -1,0 +1,14 @@
+.login-container {
+    background-color: #f0f8ff;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .login-form {
+    text-align: center;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+  }
