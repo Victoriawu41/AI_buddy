@@ -15,7 +15,7 @@ const CsvUploader = ({ onCSVUpload }) => {
                         start: new Date(row.start),
                         end: new Date(row.end),
                     }));
-                    onCSVUpload(parsedEvents);
+                    onCSVUpload(parsedEvents);  // passing the data back to Calendar.js.
                 },
             });
         }
