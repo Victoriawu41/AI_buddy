@@ -29,12 +29,39 @@ const Calendar = () => {
     //     };
     //     fetchEvents();
     // }, []);
+    
+    // for SQLite GET
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await axios.get("http://localhost:8080/events");
+                setEvents(response.data);
+            } catch (error) {
+                console.error("Error fetching events:", error);
+            }
+        };
+        fetchEvents();
+    }, []);
+
+    // for SQLite POST
+    const handleCSVUpload = async (csvEvents) => {
+        try {
+            // Loop through CSV events and save them
+            for (const event of csvEvents) {
+                await axios.post("http://localhost:8080/events", event);
+            }
+            setEvents(prevEvents => [...prevEvents, ...csvEvents]); // Update frontend state
+        } catch (error) {
+            console.error("Error uploading CSV events:", error);
+        }
+    };
+
 
     return (
         <div>
             <div style={{ height: "100vh", padding: "20px" }}>
-                <h1>Big Calendar with CSV Uploader</h1>
-                <CsvUploader onCSVUpload={setEvents} />
+                <h1>Big Calendar with little backend</h1>
+                <CsvUploader onCSVUpload={handleCSVUpload} />
                 {/* <button onClick={addEvent}>Add Event</button> */}
                 <BigCalendar events={events} />
             </div>
