@@ -5,16 +5,19 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import HomePage from './pages/HomePage'
 import Chat from './pages/Chat'
 import Calendar from './pages/Calendar';
+import NavBar from './Components/Calendar/CsvUploader';
 
 function App() {
 
   return (
     <BrowserRouter >
-    <Routes>
-      <Route path='/home' element={<HomePage />}></Route>
-      <Route path='/chat' element={<Chat />}></Route>
-      <Route path='/calendar' element={<Calendar />}></Route>
-    </Routes>
+      <NavBar />
+
+      <Routes>
+        <Route path='/home' element={<HomePage />}></Route>
+        <Route path='/chat' element={<Chat />}></Route>
+        <Route path='/calendar' element={<Calendar />}></Route>
+      </Routes>
     </BrowserRouter >
   )
 }

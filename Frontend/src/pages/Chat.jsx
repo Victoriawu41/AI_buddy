@@ -4,6 +4,7 @@ import hljs from 'highlight.js'
 import './Chat.css'
 // import 'katex/dist/katex.min.css'
 import { Markdown } from '../widgets/Markdown'
+import '../App.css'
 
 const Chat = () => {
   const [chatHistory, setChatHistory] = useState([]);           // Chat history
