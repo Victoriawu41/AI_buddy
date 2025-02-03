@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import BigCalendar from '../Components/Calendar/BigCalendar'
 import CsvUploader from '../Components/Calendar/CsvUploader'
 import axios from "axios";
-
+import ChatButton from "../Components/Calendar/ChatButton";
+import '../App.css'
+import NavBar from "../Components/Calendar/Navbar";
 
 const Calendar = () => {
     const [events, setEvents] = useState([]);  
@@ -35,6 +37,7 @@ const Calendar = () => {
 
     return (
         <div>
+            <ChatButton /> 
             <div style={{ height: "100vh", padding: "20px" }}>
                 <h1>Big Calendar with little backend</h1>
                 <CsvUploader onCSVUpload={handleCSVUpload} />
