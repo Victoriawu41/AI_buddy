@@ -1,38 +1,36 @@
-import React, { useState } from 'react'; // Import useState
-import { Link } from 'react-router-dom';
-import './Navbar.css';
+import React from 'react'
+import Papa from "papaparse";
 
-const NavBar = () => {
-  const [isNavVisible, setIsNavVisible] = useState(false);
+const CsvUploader = ({ onCSVUpload }) => {
 
-  // Toggle the visibility of the vertical navbar
-  const toggleNav = () => {
-    setIsNavVisible(!isNavVisible);
-  };
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (result) => {
+                    const parsedEvents = result.data.map((row) => ({
+                        title: row.title,
+                        start: new Date(row.start),
+                        end: new Date(row.end),
+                    }));
+                    onCSVUpload(parsedEvents);  // passing the data back to Calendar.js.
+                },
+            });
+        }
+    };
 
-  return (
-    <div>
-      {/* Button to toggle the navbar visibility */}
-      <button className="nav-toggle-btn" onClick={toggleNav}>
-        &#9776; {/* Hamburger icon for a small button */}
-      </button>
-
-      {/* Vertical navbar */}
-      <div className={`vertical-navbar ${isNavVisible ? 'show' : ''}`}>
-        <div className="navbar-content">
-          <Link to="/home" className="navbar-item" onClick={() => setIsNavVisible(false)}>
-            Home
-          </Link>
-          <Link to="/chat" className="navbar-item" onClick={() => setIsNavVisible(false)}>
-            Chat
-          </Link>
-          <Link to="/calendar" className="navbar-item" onClick={() => setIsNavVisible(false)}>
-            Calendar
-          </Link>
+    return (
+        <div style={{ marginBottom: "20px" }}>
+        <input
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            style={{ marginBottom: "10px" }}
+        />
         </div>
-      </div>
-    </div>
-  );
-};
+    )
+}
 
-export default NavBar;
+export default CsvUploader

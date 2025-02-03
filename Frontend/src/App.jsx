@@ -5,8 +5,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import HomePage from './pages/HomePage'
 import Chat from './pages/Chat'
 import Calendar from './pages/Calendar';
-import NavBar from './Components/Calendar/CsvUploader';
-
+import NavBar from './Components/Calendar/Navbar';
 function App() {
 
   return (

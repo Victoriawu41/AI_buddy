@@ -14,7 +14,7 @@ const NavBar = () => {
     <div>
       {/* Button to toggle the navbar visibility */}
       <button className="nav-toggle-btn" onClick={toggleNav}>
-        &#9776; {/* Hamburger icon for a smaller button */}
+        &#9776; {/* Hamburger icon for a small button */}
       </button>
 
       {/* Vertical navbar */}
