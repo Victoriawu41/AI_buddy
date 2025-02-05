@@ -11,10 +11,12 @@ document.getElementById('scrapeBtn').addEventListener('click', () => {
         }
         const tab = tabs[0];
 
+        const courseHomepageRegex = /^https:\/\/q\.utoronto\.ca\/courses\/\d+$/;
+
         // Check if the URL starts with the required domain and path
-        if (!tab.url || !tab.url.startsWith('https://q.utoronto.ca/courses')) {
+        if (!tab.url || !courseHomepageRegex.test(tab.url)) {
             statusEl.textContent =
-                'This extension only works on course pages at https://q.utoronto.ca/courses.';
+                'This extension only works on course homepages (e.g., https://q.utoronto.ca/courses/123456).';
             return;
         }
 
@@ -47,7 +49,7 @@ document.getElementById('scrapeBtn').addEventListener('click', () => {
             } else {
                 // Use the HTML returned by the content script
                 const fullHtml = response.html;
-                sendData(fullHtml, userInfo, statusEl);
+                sendData(fullHtml, tab.url, statusEl);
             }
         });
     });
@@ -57,26 +59,29 @@ document.getElementById('scrapeBtn').addEventListener('click', () => {
  * Sends the scraped data to the backend endpoint.
  *
  * @param {string} fullHtml - The full HTML of the page.
- * @param {string} userInfo - The extra information from the text area.
+ * @param {string} url - The extra information from the text area.
  * @param {HTMLElement} statusEl - The DOM element for displaying status messages.
  */
-function sendData(fullHtml, userInfo, statusEl) {
-    fetch('http://localhost:5000', {
+function sendData(fullHtml, url, statusEl) {
+    fetch('http://localhost:5000/quercus_scrape', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ html: fullHtml, info: userInfo })
-    })
-        .then(response => {
-            if (response.ok) {
-                statusEl.textContent = 'Scraping and sending data succeeded.';
-            } else {
-                statusEl.textContent =
-                    'Failed to send data. Server responded with status ' + response.status;
-            }
+        body: JSON.stringify({ 
+            html: fullHtml, 
+            url: url 
         })
-        .catch(error => {
-            statusEl.textContent = 'Error: ' + error.message;
-        });
+    })
+    .then(response => {
+        if (response.ok) {
+            statusEl.textContent = 'Scraping and sending data succeeded.';
+        } else {
+            statusEl.textContent =
+                'Failed to send data. Server responded with status ' + response.status;
+        }
+    })
+    .catch(error => {
+        statusEl.textContent = 'Error: ' + error.message;
+    });
 }
