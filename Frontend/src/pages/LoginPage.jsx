@@ -98,7 +98,7 @@ const LoginPage = () => {
   // Form fields for register
   const registerFields = [
     {
-      name: "username",
+      name: "account username",
       fieldType: "text",
       changeHandler: usernameUpdateHandler,
       exampleText: "Username",
@@ -116,7 +116,7 @@ const LoginPage = () => {
         : "",
     },
     {
-      name: "password",
+      name: "set password",
       fieldType: "password",
       changeHandler: passUpdateHandler,
       exampleText: "Password",
