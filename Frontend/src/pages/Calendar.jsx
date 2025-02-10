@@ -7,14 +7,22 @@ import '../App.css'
 import NavBar from "../Components/Calendar/Navbar";
 
 const Calendar = () => {
-    const [events, setEvents] = useState([]);  
+    const [events, setEvents] = useState([]);
 
     // for SQLite GET
     useEffect(() => {
         const fetchEvents = async () => {
             try {
                 const response = await axios.get("http://localhost:8080/events");
-                setEvents(response.data);
+
+                // Convert dates from string to Date objects
+                const formattedEvents = response.data.map(event => ({
+                    ...event,
+                    start: new Date(event.start),
+                    end: new Date(event.end),
+                }));
+
+                setEvents(formattedEvents);
             } catch (error) {
                 console.error("Error fetching events:", error);
             }
@@ -37,7 +45,7 @@ const Calendar = () => {
 
     return (
         <div>
-            <ChatButton /> 
+            <ChatButton />
             <div style={{ height: "100vh", padding: "20px" }}>
                 <h1>Big Calendar with little backend</h1>
                 <CsvUploader onCSVUpload={handleCSVUpload} />
