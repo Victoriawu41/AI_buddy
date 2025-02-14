@@ -3,6 +3,7 @@ import BigCalendar from '../Components/Calendar/BigCalendar'
 import CsvUploader from '../Components/Calendar/CsvUploader'
 import axios from "axios";
 import ChatButton from "../Components/Calendar/ChatButton";
+import AddEventButton from "../Components/Calendar/AddEventButton";
 import '../App.css'
 import NavBar from "../Components/Calendar/Navbar";
 
@@ -43,12 +44,24 @@ const Calendar = () => {
         }
     };
 
+    const handleNewEvent = async (newEvent) => {
+        try {
+            console.log(newEvent);
+            await axios.post("http://localhost:8080/events", newEvent);
+            setEvents([...events, newEvent]);
+            console.log("yeehaw");
+        } catch (error) {
+            console.error("Error adding new event:", error)
+        }
+    }
+
     return (
         <div>
             <ChatButton />
             <div style={{ height: "100vh", padding: "20px" }}>
                 <h1>Big Calendar with little backend</h1>
                 <CsvUploader onCSVUpload={handleCSVUpload} />
+                <AddEventButton onNewEvent={handleNewEvent}/>
                 <BigCalendar events={events} />
             </div>
         </div>
