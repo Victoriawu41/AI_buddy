@@ -30,8 +30,8 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [confirmpass, setConfirm] = useState("");
 
-  const loginEndpoint = "http://localhost:5000/login";
-  const registerEndpoint = "http://localhost:5000/register";
+  const loginEndpoint = "http://localhost:8000/auth/login";
+  const registerEndpoint = "http://localhost:8000/auth/register";
 
   const navigate = useNavigate();
 
@@ -145,7 +145,7 @@ const LoginPage = () => {
       if (response.ok) {
         //successful login
         console.log(data.message);
-        navigate("/chat");
+        navigate("/home");
       } else {
         //unsuccessful login
         setformFields(errorLoginFields);
