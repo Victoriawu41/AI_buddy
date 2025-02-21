@@ -10,11 +10,14 @@ const CsvUploader = ({ onCSVUpload }) => {
                 header: true,
                 skipEmptyLines: true,
                 complete: (result) => {
+                    
                     const parsedEvents = result.data.map((row) => ({
                         title: row.title,
                         start: new Date(row.start),
                         end: new Date(row.end),
+                        description: row.description,
                     }));
+                    console.log("Parsed row:", parsedEvents);  // Check the parsed data
                     onCSVUpload(parsedEvents);  // passing the data back to AddEventWindow.jsx.
                 },
             });

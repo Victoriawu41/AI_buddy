@@ -4,6 +4,7 @@ const AddEventButton = ({ onNewEvent }) => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
 
     const handleStartChange = (event) => {
         const b = new Date(event.target.value)
@@ -21,6 +22,10 @@ const AddEventButton = ({ onNewEvent }) => {
         setTitle(event.target.value);
     }
 
+    const handleDescriptionChange = (event) => {
+        setDescription(event.target.value);
+    }
+
     const createEvent = (event) => {
         event.preventDefault();
         console.log("yippee");
@@ -29,6 +34,7 @@ const AddEventButton = ({ onNewEvent }) => {
                 title: title,
                 start: startDate,
                 end: endDate,
+                description: description,
             };
             console.log("this is createEvent new event:", ef)
             onNewEvent(ef);
@@ -66,6 +72,17 @@ const AddEventButton = ({ onNewEvent }) => {
                     <input
                         type="datetime-local"
                         onChange={handleEndChange}
+                        style={{ width: "100%", padding: "8px", marginTop: "5px", borderRadius: "4px", border: "1px solid #ccc", fontSize: "14px" }}
+                    />
+                </label>
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", fontWeight: "bold", marginBottom: "8px" }}>
+                    Description:
+                    <input
+                        type="text"
+                        placeholder="Enter event description"
+                        onChange={handleDescriptionChange}
                         style={{ width: "100%", padding: "8px", marginTop: "5px", borderRadius: "4px", border: "1px solid #ccc", fontSize: "14px" }}
                     />
                 </label>

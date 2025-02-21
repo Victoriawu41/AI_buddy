@@ -38,7 +38,7 @@ const CalendarPage = () => {
                 <h1><b>{today.toLocaleDateString("en-US", { month: "long", day: "numeric" })}</b>, {today.getFullYear()}</h1>
                 <EventCreator onEventAdded={handleEventAdded} />
                 <hr className="w-100 border-2" />
-                <BigCalendar events={events} />
+                <BigCalendar events={events} onEventChange={handleEventAdded}/>
             </div>
         </div>
     )
