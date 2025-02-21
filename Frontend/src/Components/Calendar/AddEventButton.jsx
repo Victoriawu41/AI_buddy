@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 
-const AddEventButton = ({onNewEvent}) => {
+const AddEventButton = ({ onNewEvent }) => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [title, setTitle] = useState("");
 
     const handleStartChange = (event) => {
         const b = new Date(event.target.value)
@@ -16,12 +17,16 @@ const AddEventButton = ({onNewEvent}) => {
         setEndDate(b);
     }
 
+    const handleTitleChange = (event) => {
+        setTitle(event.target.value);
+    }
+
     const createEvent = (event) => {
         event.preventDefault();
         console.log("yippee");
-        if (startDate && endDate) {
+        if (startDate && endDate && startDate <= endDate && title) {
             const ef = {
-                title: "abc",
+                title: title,
                 start: startDate,
                 end: endDate,
             };
@@ -33,25 +38,48 @@ const AddEventButton = ({onNewEvent}) => {
     }
 
     return (
-        <form onSubmit={createEvent}>
-            <div style={{ marginBottom: "20px" }}>
-                <label>
+        <form onSubmit={createEvent} style={{  paddingLeft: "20px", paddingRight: "20px", paddingTop: "10px" }}>
+            <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", fontWeight: "bold", marginBottom: "8px" }}>
+                    Event Title:
+                    <input
+                        type="text"
+                        placeholder="Enter event title"
+                        onChange={handleTitleChange}
+                        style={{ width: "100%", padding: "8px", marginTop: "5px", borderRadius: "4px", border: "1px solid #ccc", fontSize: "14px" }}
+                    />
+                </label>
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", fontWeight: "bold", marginBottom: "8px" }}>
+                    Start Date and Time:
                     <input
                         type="datetime-local"
-                        accept=".csv"
                         onChange={handleStartChange}
-                        style={{marginRight: "10px"}}
+                        style={{ width: "100%", padding: "8px", marginTop: "5px", borderRadius: "4px", border: "1px solid #ccc", fontSize: "14px" }}
                     />
                 </label>
-                <label>
+            </div>
+            <div style={{ marginBottom: "10px" }}>
+                <label style={{ display: "block", fontWeight: "bold", marginBottom: "8px" }}>
+                    End Date and Time:
                     <input
                         type="datetime-local"
-                        accept=".csv"
                         onChange={handleEndChange}
-                        style={{marginRight: "10px"}}
+                        style={{ width: "100%", padding: "8px", marginTop: "5px", borderRadius: "4px", border: "1px solid #ccc", fontSize: "14px" }}
                     />
                 </label>
-                <input type="submit" />
+            </div>
+            <div>
+                <input
+                    type="submit"
+                    style={{
+                        padding: "10px 20px",
+                        border: "none",
+                        borderRadius: "4px",
+                        fontSize: "14px",
+                    }}
+                />
             </div>
         </form>
     )

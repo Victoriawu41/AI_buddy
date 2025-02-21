@@ -15,20 +15,24 @@ const CsvUploader = ({ onCSVUpload }) => {
                         start: new Date(row.start),
                         end: new Date(row.end),
                     }));
-                    onCSVUpload(parsedEvents);  // passing the data back to Calendar.js.
+                    onCSVUpload(parsedEvents);  // passing the data back to AddEventWindow.jsx.
                 },
             });
         }
     };
 
     return (
-        <div style={{ marginBottom: "20px" }}>
-        <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            style={{ marginBottom: "10px" }}
-        />
+        <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
+        <label className="btn btn-light w-100 text-start mb-2 d-flex align-items-center gap-2">
+            <i className="bi bi-file-earmark-spreadsheet" style={{ fontSize: '16px'}}></i>
+            Upload CSV
+            <input
+                type="file"
+                accept=".csv"
+                className="d-none"
+                onChange={handleFileUpload}
+            />
+        </label>
         </div>
     )
 }

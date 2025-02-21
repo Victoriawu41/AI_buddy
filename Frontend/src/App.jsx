@@ -6,8 +6,8 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import LoginPage from "./pages/LoginPage";
 import HomePage from './pages/HomePage'
 import Chat from './pages/Chat'
-import Calendar from './pages/Calendar';
 import NavBar from './Components/Calendar/Navbar';
+import CalendarPage from "./pages/CalendarPage";
 
 function App() {
   return (
@@ -20,7 +20,7 @@ function App() {
         <Route path="/login" element={<LoginPage />}></Route>
         <Route path='/home' element={<HomePage />}></Route>
         <Route path='/chat' element={<Chat />}></Route>
-        <Route path='/calendar' element={<Calendar />}></Route>
+        <Route path='/calendar' element={<CalendarPage />}></Route>
       </Routes>
     </BrowserRouter >
   );
