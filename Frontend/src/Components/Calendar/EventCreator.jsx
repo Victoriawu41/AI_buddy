@@ -28,7 +28,7 @@ const EventCreator = ({ onEventAdded }) => {
             await axios.post("http://localhost:8080/events", newEvent);
             onEventAdded(); // Notify parent to refresh events
             setIsOpen(false); // Close the window after successful addition
-            console.log("yeehaw");
+            // console.log("yeehaw");
         } catch (error) {
             console.error("Error adding new event:", error)
         }

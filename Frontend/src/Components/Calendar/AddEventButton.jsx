@@ -8,13 +8,13 @@ const AddEventButton = ({ onNewEvent }) => {
 
     const handleStartChange = (event) => {
         const b = new Date(event.target.value)
-        console.log(b);
+        // console.log(b);
         setStartDate(b);
     }
 
     const handleEndChange = (event) => {
         const b = new Date(event.target.value)
-        console.log(b);
+        // console.log(b);
         setEndDate(b);
     }
 
@@ -28,7 +28,7 @@ const AddEventButton = ({ onNewEvent }) => {
 
     const createEvent = (event) => {
         event.preventDefault();
-        console.log("yippee");
+        // console.log("yippee");
         if (startDate && endDate && startDate <= endDate && title) {
             const ef = {
                 title: title,
@@ -36,7 +36,7 @@ const AddEventButton = ({ onNewEvent }) => {
                 end: endDate,
                 description: description,
             };
-            console.log("this is createEvent new event:", ef)
+            // console.log("this is createEvent new event:", ef)
             onNewEvent(ef);
         } else {
             alert("Invalid or missing start/end date(s).")
