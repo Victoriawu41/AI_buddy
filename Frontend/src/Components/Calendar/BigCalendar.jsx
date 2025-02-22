@@ -43,8 +43,8 @@ const BigCalendar = ({ events, onEventChange }) => {
 
     try {
       const response = await axios.put(
-        `http://localhost:8080/events/${event.id}`,
-        updatedEvent
+       `http://localhost:8000/calendar/events/${event.id}`, 
+        updatedEvent, {withCredentials:true}
       );
       alert(response.data.message);  // Success message
       onEventChange(); // Notify parent to refresh events
@@ -60,7 +60,7 @@ const BigCalendar = ({ events, onEventChange }) => {
     e.preventDefault();
     try {
       const response = await axios.delete(
-        `http://localhost:8080/events/${event.id}`
+      `http://localhost:8000/calendar/events/${event.id}`, {withCredentials:true}
       );
       alert(response.data.message);  // Success message
       onEventChange(); // Notify parent to refresh events
@@ -120,7 +120,7 @@ const BigCalendar = ({ events, onEventChange }) => {
                 Description:
                 <input
                   type="text"
-                  value={event.description}
+                  value={event.description || ""}  // Default to an empty string if null
                   onChange={(e) => setEvent({ ...event, description: e.target.value })}
                 />
               </label>

@@ -17,7 +17,7 @@ const CsvUploader = ({ onCSVUpload }) => {
                         end: new Date(row.end),
                         description: row.description,
                     }));
-                    console.log("Parsed row:", parsedEvents);  // Check the parsed data
+                    // console.log("Parsed row:", parsedEvents);  // Check the parsed data
                     onCSVUpload(parsedEvents);  // passing the data back to AddEventWindow.jsx.
                 },
             });

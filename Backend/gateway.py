@@ -4,7 +4,7 @@ from flask_cors import CORS
 import jwt
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:5173"}})  # This will enable CORS for all routes
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:5173"}});  # This will enable CORS for all routes
 
 app.config['SECRET_KEY'] = 'temp_key'
 
@@ -24,18 +24,30 @@ def verify_token(token):
         payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
         return payload
     except jwt.ExpiredSignatureError:
+        # print("expired!!")
         return None
     except jwt.InvalidTokenError:
+        # print("invalid!!")
         return None
 
 @app.route('/<service>/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 def gateway(service, path):
-
+    
+    # Handle OPTIONS request first
+    if request.method == 'OPTIONS':
+        response = jsonify({"message": "CORS preflight successful"})
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")  
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response, 200  
+    
     protected_services = ['ai', 'calendar']
 
     #check authentification
     if service in protected_services:
         token = request.cookies.get("access_token")
+        # print(token)
         if not token:
             return jsonify({"error": "Authentication required"}), 401
         if not verify_token(token):
@@ -55,13 +67,6 @@ def gateway(service, path):
         resp = requests.put(url, json=request.json, stream=True)
     elif method == 'DELETE':
         resp = requests.delete(url, stream=True)
-    elif method == 'OPTIONS':
-        response = jsonify({"message": "CORS preflight successful"})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")  
-        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response, 200  
     else:
         return jsonify({"error": "Method not allowed"}), 405
 

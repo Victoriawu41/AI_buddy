@@ -12,7 +12,7 @@ const EventCreator = ({ onEventAdded }) => {
         try {
             // Loop through CSV events and save them
             for (const event of csvEvents) {
-                await axios.post("http://localhost:8080/events", event);
+                await axios.post(`http://localhost:8000/calendar/events`, event, {withCredentials:true});
             }
             onEventAdded(); // Notify parent to refresh events
             setIsOpen(false); // Close the window after successful addition
@@ -25,7 +25,7 @@ const EventCreator = ({ onEventAdded }) => {
     const handleNewEvent = async (newEvent) => {
         try {
             console.log(newEvent);
-            await axios.post("http://localhost:8080/events", newEvent);
+            await axios.post(`http://localhost:8000/calendar/events`, newEvent, {withCredentials:true});
             onEventAdded(); // Notify parent to refresh events
             setIsOpen(false); // Close the window after successful addition
             // console.log("yeehaw");
