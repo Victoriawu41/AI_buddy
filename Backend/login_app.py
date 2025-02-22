@@ -90,6 +90,21 @@ def verify():
         return jsonify({"error": "Authentication token invalid or expired"}), 401
     return jsonify({"message": "Authentification successful"}), 200
 
+@app.route('/logout', methods=['POST'])
+def logout():
+    print("test")
+    response = jsonify({"message": "Logout successful!"})
+    response.set_cookie(
+        "access_token", "",  # Clear the cookie
+        httponly=True,       # Keep it secure
+        secure=False,        # Set to True in production with HTTPS
+        samesite="Lax",     # Allow cross-origin cookies
+        path="/",            # Ensure it's applied across all routes
+        domain="localhost",  # Same as login cookie
+        expires=0            # Expire the cookie immediately
+    )
+    return response, 200
+
 """
 @app.route('/upload', methods=['POST'])
 def upload_file():
