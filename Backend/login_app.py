@@ -15,7 +15,7 @@ CORS(app, supports_credentials=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://flask_user:password@localhost/account_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Secret key for cookie encryption (used by Flask for signing cookies)
-app.config['SECRET_KEY'] = 'your_secret_key'
+# app.config['SECRET_KEY'] = 'your_secret_key'
 
 # File upload configuration
 UPLOAD_FOLDER = './uploads'

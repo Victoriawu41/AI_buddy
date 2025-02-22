@@ -10,8 +10,8 @@ const CalendarPage = () => {
 
     // for SQLite GET
     const fetchEvents = async () => {
-        try {
-            const response = await axios.get("http://localhost:8080/events");
+        try {            
+            const response = await axios.get("http://localhost:8000/calendar/events", {withCredentials: true});
             const formattedEvents = response.data.map(event => ({
                 ...event,
                 start: new Date(event.start),

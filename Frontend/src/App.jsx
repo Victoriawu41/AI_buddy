@@ -5,7 +5,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import Chat from "./pages/Chat";
-import Calendar from "./pages/Calendar";
+import Calendar from "./pages/CalendarPage";
 import PrivateRoute from "./Components/PrivateRoute";
 
 function App() {

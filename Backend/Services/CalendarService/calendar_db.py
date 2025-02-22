@@ -67,11 +67,14 @@ def delete_event(id):
 # Define the HTTP request handler
 class RequestHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self): # for preflight
+        print("preflight ok!")
         self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*') 
+        self.send_header('Access-Control-Allow-Origin', 'http://localhost:5173') 
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')  
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type') 
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization') 
+        self.send_header('Access-Control-Allow-Credentials', 'true')
         self.end_headers()
+        
 
     def do_GET(self):
         parsed_path = urlparse(self.path)
@@ -80,9 +83,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "application/json")
 
-            self.send_header('Access-Control-Allow-Origin', '*') # CORS
+            self.send_header('Access-Control-Allow-Origin', 'http://localhost:5173') # CORS
             self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS') 
             self.send_header('Access-Control-Allow-Headers', 'Content-Type') 
+            self.send_header('Access-Control-Allow-Credentials', 'true')
 
             self.end_headers()
             self.wfile.write(json.dumps(events).encode())
@@ -105,7 +109,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "application/json")
 
-            self.send_header('Access-Control-Allow-Origin', '*') # CORS
+            self.send_header('Access-Control-Allow-Origin', 'http://localhost:5173') # CORS
+            self.send_header('Access-Control-Allow-Credentials', 'true')
         
             self.end_headers()
             self.wfile.write(json.dumps({"message": "Event added!"}).encode())
@@ -129,7 +134,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "application/json")
 
-            self.send_header('Access-Control-Allow-Origin', '*')  # CORS
+            self.send_header('Access-Control-Allow-Origin', 'http://localhost:5173')  # CORS
+            self.send_header('Access-Control-Allow-Credentials', 'true')
             self.end_headers()
             self.wfile.write(json.dumps({"message": f"Event updated!"}).encode())
 
@@ -142,7 +148,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "application/json")
 
-            self.send_header('Access-Control-Allow-Origin', '*')  # CORS
+            self.send_header('Access-Control-Allow-Origin', 'http://localhost:5173')  # CORS
+            self.send_header('Access-Control-Allow-Credentials', 'true')
             self.end_headers()
             self.wfile.write(json.dumps({"message": f"Event deleted!"}).encode())
 
