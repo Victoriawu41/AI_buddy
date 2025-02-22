@@ -32,7 +32,16 @@ def verify_token(token):
 
 @app.route('/<service>/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 def gateway(service, path):
-
+    
+    # Handle OPTIONS request first
+    if request.method == 'OPTIONS':
+        response = jsonify({"message": "CORS preflight successful"})
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")  
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response, 200  
+    
     protected_services = ['ai', 'calendar']
 
     #check authentification
@@ -58,13 +67,6 @@ def gateway(service, path):
         resp = requests.put(url, json=request.json, stream=True)
     elif method == 'DELETE':
         resp = requests.delete(url, stream=True)
-    elif method == 'OPTIONS':
-        response = jsonify({"message": "CORS preflight successful"})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")  
-        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response, 200  
     else:
         return jsonify({"error": "Method not allowed"}), 405
 
