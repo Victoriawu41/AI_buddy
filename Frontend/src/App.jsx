@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
-
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import Chat from "./pages/Chat";
@@ -11,14 +10,11 @@ import PrivateRoute from "./Components/PrivateRoute";
 
 function App() {
   return (
-
-    <BrowserRouter >
-      <NavBar />
-
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<LoginPage />}></Route>
-        
+
         <Route
           path="/home"
           element={<PrivateRoute element={HomePage} />}
@@ -29,9 +25,8 @@ function App() {
           element={<PrivateRoute element={Calendar} />}
         ></Route>
       </Routes>
-    </BrowserRouter >
+    </BrowserRouter>
   );
-
 }
 
 export default App;

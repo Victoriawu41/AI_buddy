@@ -4,3 +4,5 @@ httpx
 flask-sqlalchemy
 flask-bcrypt
 psycopg2
+pyjwt
+requests
