@@ -4,14 +4,35 @@ import './Navbar.css';
 
 const NavBar = () => {
   const [isNavVisible, setIsNavVisible] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Make an API call to check if the user is authenticated.
+    axios
+      .get("http://localhost:5001/verify", { withCredentials: true })
+      .then((response) => {
+        setIsAuthenticated(true);
+      })
+      .catch((error) => {
+        setIsAuthenticated(false);
+      });
+  }, []);
+
+  // While still verifying, show a loading message
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
 
   // Toggle the visibility of the vertical navbar
   const toggleNav = () => {
     setIsNavVisible(!isNavVisible);
   };
 
-  // Check if the user is authenticated
-  const isAuthenticated = !!localStorage.getItem('token');
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   return (
     <div>
