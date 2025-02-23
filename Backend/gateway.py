@@ -1,18 +1,58 @@
 from flask import Flask, request, Response, stream_with_context, jsonify
 import requests
 from flask_cors import CORS
+import jwt
 
 app = Flask(__name__)
-CORS(app)  # This will enable CORS for all routes
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:5173"}});  # This will enable CORS for all routes
+
+app.config['SECRET_KEY'] = 'temp_key'
 
 # Define the microservices URLs
 MICROSERVICES = {
+    'auth': 'http://localhost:5001',
     'ai': 'http://localhost:5000',
+    'calendar': 'http://localhost:8080',
     # Add other microservices here
 }
+def verify_token(token):
+    """
+    Attempt to decode the token using the SECRET_KEY.
+    Return the decoded payload if valid, or None if invalid/expired.
+    """
+    try:
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        # print("expired!!")
+        return None
+    except jwt.InvalidTokenError:
+        # print("invalid!!")
+        return None
 
-@app.route('/<service>/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/<service>/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 def gateway(service, path):
+    
+    # Handle OPTIONS request first
+    if request.method == 'OPTIONS':
+        response = jsonify({"message": "CORS preflight successful"})
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:5173")  
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response, 200  
+    
+    protected_services = ['ai', 'calendar']
+
+    #check authentification
+    if service in protected_services:
+        token = request.cookies.get("access_token")
+        # print(token)
+        if not token:
+            return jsonify({"error": "Authentication required"}), 401
+        if not verify_token(token):
+            return jsonify({"error": "Authentication token invalid or expired"}), 401
+
     if service not in MICROSERVICES:
         return jsonify({"error": "Service not found"}), 404
 

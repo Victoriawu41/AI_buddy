@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // Import useState
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 
@@ -9,6 +9,9 @@ const NavBar = () => {
   const toggleNav = () => {
     setIsNavVisible(!isNavVisible);
   };
+
+  // Check if the user is authenticated
+  const isAuthenticated = !!localStorage.getItem('token');
 
   return (
     <div>
@@ -23,12 +26,20 @@ const NavBar = () => {
           <Link to="/home" className="navbar-item" onClick={() => setIsNavVisible(false)}>
             Home
           </Link>
-          <Link to="/chat" className="navbar-item" onClick={() => setIsNavVisible(false)}>
-            Chat
-          </Link>
-          <Link to="/calendar" className="navbar-item" onClick={() => setIsNavVisible(false)}>
-            Calendar
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <Link to="/chat" className="navbar-item" onClick={() => setIsNavVisible(false)}>
+                Chat
+              </Link>
+              <Link to="/calendar" className="navbar-item" onClick={() => setIsNavVisible(false)}>
+                Calendar
+              </Link>
+            </>
+          ) : (
+            <Link to="/login" className="navbar-item" onClick={() => setIsNavVisible(false)}>
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </div>

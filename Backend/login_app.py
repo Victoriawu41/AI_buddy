@@ -1,9 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from models import db, User#, FileMetadata
+from dao import UserDAO
 import os
+import jwt
+import datetime
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'temp_key' # TODO: setup secure way to pass secret key
+# app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key') <- USING ENV VARIABLE
 
 CORS(app, supports_credentials=True)
 
@@ -11,7 +16,7 @@ CORS(app, supports_credentials=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://flask_user:password@localhost/account_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Secret key for cookie encryption (used by Flask for signing cookies)
-app.config['SECRET_KEY'] = 'your_secret_key'
+# app.config['SECRET_KEY'] = 'your_secret_key'
 
 # File upload configuration
 UPLOAD_FOLDER = './uploads'
@@ -22,6 +27,28 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()  # Create tables in the PostgreSQL database
+
+def generateToken(user_id):
+    payload = {
+        'user_id': user_id,
+        'iat': datetime.datetime.now(),
+        'exp': datetime.datetime.now() + datetime.timedelta(days=7) # 7 day expiration
+    }
+    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+    return token
+
+def verify_token(token):
+    """
+    Attempt to decode the token using the SECRET_KEY.
+    Return the decoded payload if valid, or None if invalid/expired.
+    """
+    try:
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -35,10 +62,7 @@ def register():
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already exists"}), 400
 
-    user = User(username=username, email=email)
-    user.set_password(password)
-    db.session.add(user)
-    db.session.commit()
+    UserDAO.create_user(username, email, password)
     return jsonify({"message": "User registered successfully!"}), 201
 
 @app.route('/login', methods=['POST'])
@@ -47,12 +71,23 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    user = User.query.filter_by(username=username).first()
+    user = UserDAO.get_user_by_username(username)
     if user and user.check_password(password):
         response = jsonify({"message": "Login successful!"})
-        response.set_cookie("user_id", str(user.id), max_age=60 * 60 * 24 * 7)  # Expires in 7 days
+        response.set_cookie("access_token", generateToken(user.id), httponly=True, secure=True, samesite='Lax')
         return response, 200
     return jsonify({"error": "Invalid credentials"}), 401
+
+@app.route('/verify', methods=['GET'])
+# used to verify access token
+def verify():
+    token = request.cookies.get("access_token")
+    if not token:
+        return jsonify({"error": "Authentication required"}), 401
+    if not verify_token(token):
+        return jsonify({"error": "Authentication token invalid or expired"}), 401
+    return jsonify({"message": "Authentification successful"}), 200
+
 """
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -74,4 +109,4 @@ def upload_file():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

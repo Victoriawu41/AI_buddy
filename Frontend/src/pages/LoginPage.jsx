@@ -4,59 +4,34 @@ import { useNavigate } from "react-router-dom";
 import "../Login.css";
 
 /**
- * LoginPage Component
+ * LoginPage component renders a login and registration form.
+ * It allows users to either log in or create a new account.
+ * The form dynamically switches between login and registration modes.
  *
- * This component renders a login and registration page. It provides functionality
- * for users to log in or create a new account, with validation feedback for common errors.
- * The form dynamically switches between login and registration modes, updating the fields accordingly.
+ * State is managed for user input fields (username, password, email, and confirm password),
+ * and appropriate form fields are displayed based on the current mode.
  *
- * State Variables:
- * - `isLogin` (boolean): Indicates whether the form is in login mode (true) or registration mode (false).
- * - `emailError` (boolean): Tracks if there is an error related to email (e.g., email already in use).
- * - `credentialError` (boolean): Tracks if there are invalid credentials or mismatched passwords.
- * - `username` (string): Stores the user's entered username.
- * - `pass` (string): Stores the user's entered password.
- * - `email` (string): Stores the user's entered email.
- * - `formFields` (array): Contains the form field configuration for the current form mode (login or register).
+ * Login and registration requests are sent to respective endpoints, and appropriate
+ * error messages are displayed if the input is invalid or an error occurs.
  *
- * Endpoints:
- * - `loginEndpoint`: API endpoint for logging in.
- * - `registerEndpoint`: API endpoint for user registration.
+ * Navigation to the chat page occurs after a successful login, and the user is alerted
+ * upon successful account creation.
  *
- * Functions:
- * - `emailUpdateHandler(e)`: Updates the `email` state when the email input changes.
- * - `usernameUpdateHandler(e)`: Updates the `username` state when the username input changes.
- * - `passUpdateHandler(e)`: Updates the `pass` state when the password input changes.
- * - `loginHandler(e)`: Handles login form submission by sending credentials to the login API.
- * - `registerHandler(e)`: Handles registration form submission by sending user data to the registration API.
- * - `switchHandler()`: Toggles between login and registration modes, resetting form fields and state.
+ * The component handles switching between the login and registration forms,
+ * clearing input fields and adjusting error handling as needed.
  *
- * Form Field Configurations:
- * - `loginFields`: Defines input fields for the login form, including username and password.
- * - `registerFields`: Defines input fields for the registration form, including username, email, password, and confirm password.
- *
- * Component Behavior:
- * - The form dynamically switches between login and registration modes.
- * - Provides real-time feedback for invalid credentials or existing accounts during form submission.
- * - Integrates with a backend server for login and registration functionality.
- * - Resets form fields and error states upon mode switch.
- *
- * Returns:
- * - JSX that renders a form for login or registration, and a button to toggle between modes.
+ * @returns {JSX.Element} The LoginPage component with dynamic forms for login and registration.
  */
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [emailError, setEmailError] = useState(false);
-  const [credentialError, setcredentialError] = useState(false);
-  const [userError, setUserError] = useState(false);
   const [username, setUsername] = useState("");
   const [pass, setPass] = useState("");
   const [email, setEmail] = useState("");
   const [confirmpass, setConfirm] = useState("");
 
-  const loginEndpoint = "http://localhost:5000/login";
-  const registerEndpoint = "http://localhost:5000/register";
+  const loginEndpoint = "http://localhost:8000/auth/login";
+  const registerEndpoint = "http://localhost:8000/auth/register";
 
   const navigate = useNavigate();
 
@@ -89,11 +64,17 @@ const LoginPage = () => {
       fieldType: "password",
       changeHandler: passUpdateHandler,
       exampleText: "Password",
-      helperText: credentialError
-        ? "Invalid credentials - please try again"
-        : "",
     },
   ];
+
+  const errorLoginFields = loginFields.map((field) =>
+    field.name === "password"
+      ? {
+          ...field,
+          helperText: "Invalid credentials - please try again",
+        }
+      : field
+  );
 
   // Form fields for register
   const registerFields = [
@@ -102,18 +83,12 @@ const LoginPage = () => {
       fieldType: "text",
       changeHandler: usernameUpdateHandler,
       exampleText: "Username",
-      helperText: userError
-        ? "This username already has an associated account"
-        : "",
     },
     {
       name: "email",
       fieldType: "email",
       changeHandler: emailUpdateHandler,
       exampleText: "name@example.com",
-      helperText: emailError
-        ? "This email already has an associated account"
-        : "",
     },
     {
       name: "set password",
@@ -126,17 +101,36 @@ const LoginPage = () => {
       fieldType: "password",
       changeHandler: confirmpassUpdateHandler,
       exampleText: "Confirm Password",
-      helperText: credentialError
-        ? "Passwords do not match - please try again"
-        : "",
     },
   ];
+
+  const errorUserRegisterFields = registerFields.map((field) =>
+    field.name === "account username"
+      ? {
+          ...field,
+          helperText: "This username already has an associated account",
+        }
+      : field
+  );
+
+  const errorEmailRegisterFields = registerFields.map((field) =>
+    field.name === "email"
+      ? { ...field, helperText: "This email already has an associated account" }
+      : field
+  );
+
+  const errorPassRegisterFields = registerFields.map((field) =>
+    field.name === "confirm password"
+      ? { ...field, helperText: "Passwords do not match - please try again" }
+      : field
+  );
 
   const [formFields, setformFields] = useState(loginFields);
 
   const loginHandler = async (e) => {
     e.preventDefault();
     try {
+      //send data to backend
       const response = await fetch(loginEndpoint, {
         method: "POST",
         headers: {
@@ -149,15 +143,12 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (response.ok) {
+        //successful login
         console.log(data.message);
-        setEmailError(false);
-        setcredentialError(false);
-        navigate("/chat");
+        navigate("/home");
       } else {
-        if (data.error === "Invalid credentials") {
-          setcredentialError(true);
-          setformFields(loginFields);
-        }
+        //unsuccessful login
+        setformFields(errorLoginFields);
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -168,11 +159,13 @@ const LoginPage = () => {
   const registerHandler = async (e) => {
     e.preventDefault();
     if (pass !== confirmpass) {
-      setcredentialError(true);
-      setformFields(registerFields);
+      //password not matching with confirm password field
+      setformFields(errorPassRegisterFields);
+      return;
     }
 
     try {
+      //send data to backend
       const response = await fetch(registerEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -181,19 +174,18 @@ const LoginPage = () => {
 
       const data = await response.json();
       if (response.ok) {
+        //successful registration
         console.log(data.message);
+        alert("Account created!");
         setIsLogin(true);
-        setEmailError(false);
-        setcredentialError(false);
-        setUserError(false);
         setformFields(loginFields);
       } else {
+        //unsuccessful registration
         if (data.error === "Email already exists") {
-          setEmailError(true);
-        } else if (data.error === "Username already exists") {
-          setUserError(true);
+          setformFields(errorEmailRegisterFields);
+        } else {
+          setformFields(errorUserRegisterFields);
         }
-        setformFields(registerFields);
       }
     } catch (error) {
       console.error("Error during registration:", error);
@@ -202,17 +194,15 @@ const LoginPage = () => {
   };
 
   const switchHandler = () => {
+    //handles switch between pages
     setEmail("");
     setPass("");
     setUsername("");
-    setcredentialError(false);
     if (isLogin) {
       setIsLogin(false);
       setformFields(registerFields);
     } else {
       setIsLogin(true);
-      setEmailError(false);
-      setUserError(false);
       setformFields(loginFields);
     }
   };
