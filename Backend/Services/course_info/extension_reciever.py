@@ -8,8 +8,10 @@ def extension_reciever():
     data = flask.request.json
     env_dict = get_ENV_dict(data['html'])
     url = data['url']
-    print(env_dict)
-    print(url)
+    with open('test.txt', 'w') as f:
+        f.write(str(env_dict))
+    # print(env_dict)
+    # print(url)
     return 'OK'
 
 if __name__ == '__main__':
