@@ -1,12 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import NavBar from "../Components/Calendar/Navbar";
 import './HomePage.css';
 
 const HomePage = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Make an API call to check if the user is authenticated.
+    axios
+      .get("http://localhost:5001/verify", { withCredentials: true })
+      .then((response) => {
+        setIsAuthenticated(true);
+      })
+      .catch((error) => {
+        setIsAuthenticated(false);
+      });
+  }, []);
+
+  // While still verifying, show a loading message
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
 
   const handleFeatureClick = (path) => {
     if (isAuthenticated) {
@@ -20,6 +38,10 @@ const HomePage = () => {
     setShowLoginPrompt(false);
   };
 
+  const redirectToLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <div>
       <NavBar />
@@ -31,7 +53,7 @@ const HomePage = () => {
         <div className="row">
           <div className="col-md-4">
             <div className="card mb-4 shadow-sm animate-card" onClick={() => handleFeatureClick('/chat')}>
-              <div className="card-body">
+              <div className="card-body center-text">
                 <h5 className="card-title">Chat</h5>
                 <p className="card-text">Engage in real-time conversations with our AI-powered chat feature.</p>
               </div>
@@ -39,7 +61,7 @@ const HomePage = () => {
           </div>
           <div className="col-md-4">
             <div className="card mb-4 shadow-sm animate-card" onClick={() => handleFeatureClick('/calendar')}>
-              <div className="card-body">
+              <div className="card-body center-text">
                 <h5 className="card-title">Calendar</h5>
                 <p className="card-text">Keep track of your events and appointments with our integrated calendar.</p>
               </div>
@@ -47,7 +69,7 @@ const HomePage = () => {
           </div>
           <div className="col-md-4">
             <div className="card mb-4 shadow-sm animate-card" onClick={() => handleFeatureClick('/quercus-scraper')}>
-              <div className="card-body">
+              <div className="card-body center-text">
                 <h5 className="card-title">Quercus Scraper</h5>
                 <p className="card-text">Scrape Quercus home pages for weekly topic summaries.</p>
               </div>
@@ -56,10 +78,10 @@ const HomePage = () => {
         </div>
       </div>
       {showLoginPrompt && (
-        <div className="login-prompt-overlay animate-overlay">
-          <div className="login-prompt animate-prompt">
+        <div className="login-prompt-overlay">
+          <div className="login-prompt">
             <p>Please log in to learn more about this feature.</p>
-            <button onClick={closeLoginPrompt}>Close</button>
+            <button onClick={redirectToLogin}>Login</button>
           </div>
         </div>
       )}
