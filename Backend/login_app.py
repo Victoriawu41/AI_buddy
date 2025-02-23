@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from models import db, User#, FileMetadata
+from dao import UserDAO
 import os
 import jwt
 import datetime
@@ -15,7 +16,7 @@ CORS(app, supports_credentials=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://flask_user:password@localhost/account_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Secret key for cookie encryption (used by Flask for signing cookies)
-app.config['SECRET_KEY'] = 'your_secret_key'
+# app.config['SECRET_KEY'] = 'your_secret_key'
 
 # File upload configuration
 UPLOAD_FOLDER = './uploads'
@@ -61,10 +62,7 @@ def register():
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already exists"}), 400
 
-    user = User(username=username, email=email)
-    user.set_password(password)
-    db.session.add(user)
-    db.session.commit()
+    UserDAO.create_user(username, email, password)
     return jsonify({"message": "User registered successfully!"}), 201
 
 @app.route('/login', methods=['POST'])
@@ -73,7 +71,7 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    user = User.query.filter_by(username=username).first()
+    user = UserDAO.get_user_by_username(username)
     if user and user.check_password(password):
         response = jsonify({"message": "Login successful!"})
         response.set_cookie("access_token", generateToken(user.id), httponly=True, secure=True, samesite='Lax')
