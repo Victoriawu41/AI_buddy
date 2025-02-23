@@ -7,6 +7,7 @@ import HomePage from "./pages/HomePage";
 import Chat from "./pages/Chat";
 import Calendar from "./pages/CalendarPage";
 import PrivateRoute from "./Components/PrivateRoute";
+import Logout from "./Components/Logout";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           path="/calendar"
           element={<PrivateRoute element={Calendar} />}
         ></Route>
+        <Route path="/logout" element={<Logout />} />
       </Routes>
     </BrowserRouter>
   );

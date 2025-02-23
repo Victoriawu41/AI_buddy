@@ -56,6 +56,9 @@ const NavBar = () => {
               <Link to="/calendar" className="navbar-item" onClick={() => setIsNavVisible(false)}>
                 Calendar
               </Link>
+              <Link to="/logout" className="navbar-item logout-link">
+                Logout
+              </Link>
             </>
           ) : (
             <Link to="/login" className="navbar-item" onClick={() => setIsNavVisible(false)}>
