@@ -4,14 +4,13 @@ import hljs from 'highlight.js'
 import './Chat.css'
 // import 'katex/dist/katex.min.css'
 import { Markdown } from '../widgets/Markdown'
-import '../App.css'
 
 const Chat = () => {
   const [chatHistory, setChatHistory] = useState([]);           // Chat history
   const [inputMessage, setInputMessage] = useState('');         // Request
 
   useEffect(() => {
-    fetch('http://localhost:8000/ai/chat/messages')
+    fetch('http://localhost:8000/ai/chat/messages', {credentials: 'include'})
       .then(res => res.json())
       .then(data => {
         setChatHistory(data);
@@ -39,7 +38,8 @@ const Chat = () => {
       const response = await fetch('http://localhost:8000/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [{ role: 'user', content: inputMessage }], user_name: "User" })
+        body: JSON.stringify({ messages: [{ role: 'user', content: inputMessage }], user_name: "User" }),
+        credentials: 'include'
       });
       const reader = response.body.getReader();
       let partialContent = '';
@@ -77,6 +77,14 @@ const Chat = () => {
     e.target.style.height = `${Math.min(e.target.scrollHeight, 600)}px`;
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Handle file upload logic here
+      console.log(file);
+    }
+  };
+
   const formatMessage = (message) => {
     if (message.includes('<SPINNER>')) {
       return <div className="spinner" />;
@@ -99,6 +107,10 @@ const Chat = () => {
         </div>
         
         <div className="card-footer d-flex">
+          <label className="btn btn-secondary me-2">
+            +
+            <input type="file" style={{ display: 'none' }} onChange={handleFileUpload} />
+          </label>
           <textarea
             className="form-control me-2"
             placeholder="Type your message..."
