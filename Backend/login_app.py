@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from models import db, User#, FileMetadata
-from dao import UserDAO
+from dao.user_dao import UserDAO
 import os
 import jwt
 import datetime
@@ -103,6 +103,30 @@ def logout():
     )
     return response, 200
 
+@app.route('/user', methods=['GET'])
+def get_user_info():
+    # call http://localhost:5001/user from frontend with cookie
+    token = request.cookies.get("access_token")
+    
+    if not token:
+        return jsonify({"error": "Authentication required"}), 401
+    
+    payload = verify_token(token)
+    
+    if not payload:
+        return jsonify({"error": "Authentication token invalid or expired"}), 401
+    
+    user = UserDAO.get_user_by_id(payload['user_id'])
+    
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    return jsonify({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email
+    }), 200
+    
 """
 @app.route('/upload', methods=['POST'])
 def upload_file():
