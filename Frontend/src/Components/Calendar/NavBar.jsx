@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Navbar.css';
 
 const NavBar = () => {
   const [isNavVisible, setIsNavVisible] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Make an API call to check if the user is authenticated.
+    axios
+      .get("http://localhost:5001/verify", { withCredentials: true })
+      .then((response) => {
+        setIsAuthenticated(true);
+      })
+      .catch((error) => {
+        setIsAuthenticated(false);
+      });
+  }, []);
+
+  // While still verifying, show a loading message
+  if (isAuthenticated === null) {
+    return <div>Loading...</div>;
+  }
 
   // Toggle the visibility of the vertical navbar
   const toggleNav = () => {
     setIsNavVisible(!isNavVisible);
   };
 
-  // Check if the user is authenticated
-  const isAuthenticated = !!localStorage.getItem('token');
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   return (
     <div>
@@ -33,6 +55,9 @@ const NavBar = () => {
               </Link>
               <Link to="/calendar" className="navbar-item" onClick={() => setIsNavVisible(false)}>
                 Calendar
+              </Link>
+              <Link to="/logout" className="navbar-item logout-link">
+                Logout
               </Link>
             </>
           ) : (
