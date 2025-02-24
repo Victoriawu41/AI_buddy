@@ -20,38 +20,25 @@ document.getElementById('scrapeBtn').addEventListener('click', () => {
             return;
         }
 
-        // Retrieve extra information from the text area
-        const userInfo = document.getElementById('info').value;
-
-        // Send a message to the content script to get the full HTML of the page
-        chrome.tabs.sendMessage(tab.id, { action: 'getHtml' }, response => {
-            if (chrome.runtime.lastError || !response) {
-                // If there's an error (e.g. content script not injected), try injecting the script dynamically.
-                chrome.scripting.executeScript(
-                    {
-                        target: { tabId: tab.id },
-                        func: () => document.documentElement.outerHTML
-                    },
-                    injectionResults => {
-                        if (chrome.runtime.lastError) {
-                            statusEl.textContent =
-                                'Error executing script: ' + chrome.runtime.lastError.message;
-                            return;
-                        }
-                        if (injectionResults && injectionResults[0]) {
-                            const fullHtml = injectionResults[0].result;
-                            sendData(fullHtml, userInfo, statusEl);
-                        } else {
-                            statusEl.textContent = 'No result from injected script.';
-                        }
-                    }
-                );
-            } else {
-                // Use the HTML returned by the content script
-                const fullHtml = response.html;
-                sendData(fullHtml, tab.url, statusEl);
+        chrome.scripting.executeScript(
+            {
+                target: { tabId: tab.id },
+                func: () => document.documentElement.outerHTML
+            },
+            injectionResults => {
+                if (chrome.runtime.lastError) {
+                    statusEl.textContent =
+                        'Error executing script: ' + chrome.runtime.lastError.message;
+                    return;
+                }
+                if (injectionResults && injectionResults[0]) {
+                    const fullHtml = injectionResults[0].result;
+                    sendData(fullHtml, tab.url, statusEl);
+                } else {
+                    statusEl.textContent = 'No result from injected script.';
+                }
             }
-        });
+        );
     });
 });
 
@@ -63,25 +50,33 @@ document.getElementById('scrapeBtn').addEventListener('click', () => {
  * @param {HTMLElement} statusEl - The DOM element for displaying status messages.
  */
 function sendData(fullHtml, url, statusEl) {
-    fetch('http://localhost:5000/quercus_scrape', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-            html: fullHtml, 
-            url: url 
-        })
-    })
-    .then(response => {
-        if (response.ok) {
-            statusEl.textContent = 'Scraping and sending data succeeded.';
-        } else {
-            statusEl.textContent =
-                'Failed to send data. Server responded with status ' + response.status;
+    chrome.runtime.sendMessage({ action: "fetchCookie" }, (response) => {
+        if (!response || !response.success) {
+            statusEl.textContent = response ? response.error : 'Failed to fetch session cookie.';
+            return;
         }
-    })
-    .catch(error => {
-        statusEl.textContent = 'Error: ' + error.message;
+
+        fetch('http://localhost:8000/course_info/quercus_scrape', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'cookies': response.cookies
+            },
+            body: JSON.stringify({ 
+                html: fullHtml, 
+                url: url 
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                statusEl.textContent = 'Scraping and sending data succeeded.';
+            } else {
+                statusEl.textContent =
+                    'Failed to send data. Server responded with status ' + response.status;
+            }
+        })
+        .catch(error => {
+            statusEl.textContent = 'Error: ' + error.message;
+        });
     });
 }

@@ -11,8 +11,8 @@ def extension_reciever():
     with open('test.txt', 'w') as f:
         f.write(str(env_dict))
     # print(env_dict)
-    # print(url)
+    print(url)
     return 'OK'
 
 if __name__ == '__main__':
-    app.run(debug=True, host='localhost', port=5000)
+    app.run(debug=True, host='localhost', port=5002)

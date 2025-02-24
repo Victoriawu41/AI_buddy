@@ -13,6 +13,7 @@ MICROSERVICES = {
     'auth': 'http://localhost:5001',
     'ai': 'http://localhost:5000',
     'calendar': 'http://localhost:8080',
+    'course_info': 'http://localhost:5002',
     # Add other microservices here
 }
 def verify_token(token):
