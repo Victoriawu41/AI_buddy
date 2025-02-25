@@ -3,3 +3,5 @@ __pycache__/
 *.py[cod]
 # Ignore database files
 *.db
+
+Backend/Services/AI/uploads

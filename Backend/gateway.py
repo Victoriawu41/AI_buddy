@@ -62,7 +62,10 @@ def gateway(service, path):
     if method == 'GET':
         resp = requests.get(url, params=request.args, stream=True)
     elif method == 'POST':
-        resp = requests.post(url, json=request.json, stream=True)
+        if request.content_type.startswith('multipart/form-data'):
+            resp = requests.post(url, files=request.files, data=request.form, stream=True)
+        else:
+            resp = requests.post(url, json=request.json, stream=True)
     elif method == 'PUT':
         resp = requests.put(url, json=request.json, stream=True)
     elif method == 'DELETE':
