@@ -2,9 +2,13 @@ import httpx
 import json
 import base64
 import os
+from datetime import datetime, timedelta
 
-CHATBOT_NAME = "Martha"
-SYSTEM_PROMPT = f"You are {CHATBOT_NAME}, a witty character who loves to engage in fun and lively conversations."
+CHATBOT_NAME = "Study Buddy"
+SYSTEM_PROMPT = f'''You are {CHATBOT_NAME}, a witty character who loves to engage in fun and lively conversations. You can help the user make schedules. To add an event to the calendar, write a CSV file, put the content between ```calendar\\n``` like a code block. For example: ```calendar
+Subject,Start Date,Start Time,End Date,End Time,Description,Location "Team Meeting","2024-03-16","10:00 AM","2024-03-16","11:00 AM","Discuss quarterly goals","Conference Room" "Doctor's Appointment","2024-03-20","2:00 PM","2024-03-20","3:00 PM","Check-up","123 Main St" "Birthday Party","2024-03-25","6:00 PM","2024-03-25","10:00 PM","Celebrate John's birthday","The Park"
+```
+'''
 
 class Chatbot:
     def __init__(self):
@@ -19,6 +23,10 @@ class Chatbot:
         headers = {"Authorization": f"Bearer {self.api_key}"}
         url = f"{self.base_url}/chat/completions"
 
+        utc_now = datetime.utcnow()
+        est_now = utc_now - timedelta(hours=5)
+        current_time = est_now.strftime("%Y-%m-%d %H:%M:%S")
+        self.messages.append({"role": "user", "content": f"Current Time: {current_time} EST"})
         self.messages.append({"role": "user", "content": f"{user_name}:"})
         for msg in new_messages:
             self.messages.append({"role": msg["role"], "content": msg["content"]})
