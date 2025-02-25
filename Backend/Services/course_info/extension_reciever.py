@@ -1,5 +1,6 @@
 import flask
 from quercus_html_parser import get_ENV_dict
+import json
 
 app = flask.Flask(__name__)
 
@@ -8,8 +9,7 @@ def extension_reciever():
     data = flask.request.json
     env_dict = get_ENV_dict(data['html'])
     url = data['url']
-    with open('test.txt', 'w') as f:
-        f.write(str(env_dict))
+    json.dump(env_dict, open('test.json', 'w'), indent=2)
     # print(env_dict)
     print(url)
     return 'OK'
