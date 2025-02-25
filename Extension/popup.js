@@ -70,6 +70,8 @@ function sendData(fullHtml, url, statusEl) {
         .then(response => {
             if (response.ok) {
                 statusEl.textContent = 'Scraping and sending data succeeded.';
+            } else if (response.status === 401) {
+                statusEl.textContent = 'Failed to send data. Please log in at http://localhost:5173.';
             } else {
                 statusEl.textContent =
                     'Failed to send data. Server responded with status ' + response.status;
