@@ -59,17 +59,20 @@ def gateway(service, path):
     url = f"{MICROSERVICES[service]}/{path}"
     method = request.method
 
+    headers = {key: value for key, value in request.headers if key.lower() != 'host'} 
+    cookies = request.cookies 
+
     if method == 'GET':
-        resp = requests.get(url, params=request.args, stream=True)
+        resp = requests.get(url, params=request.args, headers=headers, cookies=cookies, stream=True)
     elif method == 'POST':
         if request.content_type.startswith('multipart/form-data'):
-            resp = requests.post(url, files=request.files, data=request.form, stream=True)
+            resp = requests.post(url, files=request.files, data=request.form, headers=headers, cookies=cookies, stream=True)
         else:
-            resp = requests.post(url, json=request.json, stream=True)
+            resp = requests.post(url, json=request.json, headers=headers, cookies=cookies, stream=True)
     elif method == 'PUT':
-        resp = requests.put(url, json=request.json, stream=True)
+        resp = requests.put(url, json=request.json, headers=headers, cookies=cookies, stream=True)
     elif method == 'DELETE':
-        resp = requests.delete(url, stream=True)
+        resp = requests.delete(url, headers=headers, cookies=cookies, stream=True)
     else:
         return jsonify({"error": "Method not allowed"}), 405
 
