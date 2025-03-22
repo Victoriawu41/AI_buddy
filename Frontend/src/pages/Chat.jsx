@@ -5,7 +5,7 @@ import './Chat.css'
 // import 'katex/dist/katex.min.css'
 import { Markdown } from '../widgets/Markdown'
 import ChatSettings from '../widgets/ChatSettings' // Import the new ChatSettings component
-import { sendToastNotification, sendBrowserNotification, requestNotificationPermission } from '../utils/notifications' // Import notification utilities
+import { notify, requestNotificationPermission } from '../utils/notifications' // Import notification utilities
 
 const Chat = () => {
   const [chatHistory, setChatHistory] = useState([]);           // Chat history
@@ -97,7 +97,7 @@ const Chat = () => {
     if (file) {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('filename', file.name); // Add filename to FormData
+      formData.append('filename', file.name);
 
       try {
         const response = await fetch('http://localhost:8000/ai/chat/upload', {
@@ -109,33 +109,18 @@ const Chat = () => {
         if (!response.ok) {
           const errorText = await response.text();
           console.error('Upload failed:', response.status, errorText);
-          sendToastNotification(`Upload failed: ${errorText}`, 'error');
+          notify(`Upload failed: ${errorText}`, { type: 'error' });
           return;
         }
 
-        const result = await response.json();
-        console.log(result);
-        
-        // Play notification sound
-        try {
-          uploadSound.play();
-        } catch (error) {
-          console.error("Error playing sound:", error);
-        }
-        
-        // Show toast notification
-        sendToastNotification(`File "${file.name}" uploaded successfully!`, 'success');
-        
-        // Show browser notification if the page is not in focus
-        if (!document.hasFocus()) {
-          sendBrowserNotification('File Upload Complete', {
-            body: `Your file "${file.name}" has been uploaded successfully.`,
-            icon: '/favicon.ico'
-          });
-        }
+        // Show success notification with sound
+        notify(`File "${file.name}" uploaded successfully!`, { 
+          type: 'success', 
+          sound: true 
+        });
       } catch (err) {
         console.error('Upload error:', err);
-        sendToastNotification('Upload error: ' + err.message, 'error');
+        notify(`Upload error: ${err.message}`, { type: 'error' });
       }
     }
   };

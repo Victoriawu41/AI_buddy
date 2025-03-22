@@ -91,14 +91,9 @@ class Chatbot:
         return events_text
 
     def chat(self, new_messages):
-        for i in range(10):
-            yield "Hello"
-        return
-
         headers = {"Authorization": f"Bearer {self.api_key}"}
         url = f"{self.base_url}/chat/completions"
 
-        
         current_time = self.get_curr_date_time().strftime("%Y-%m-%d %H:%M:%S")
         self.messages.append({"role": "user", "content": f"Current Time: {current_time} EST"})
         self.messages.append({"role": "user", "content": f"{self.settings.user_name}:"})
@@ -206,10 +201,8 @@ class Chatbot:
                                 
                                 # Check if reminder is enabled and calculate reminder time
                                 if event.get('reminder_on'):
-                                    reminder_date_str = event.get('reminder_date')
-                                    reminder_time_str = event.get('reminder_time')
-                                    if reminder_date_str and reminder_time_str:
-                                        reminder_datetime_str = f"{reminder_date_str} {reminder_time_str}"
+                                    reminder_datetime_str = event.get('reminder_datetime')
+                                    if reminder_datetime_str:
                                         reminder_time = datetime.strptime(reminder_datetime_str, "%Y-%m-%d %H:%M:%S")
                                         reminder_diff = reminder_time - current_time
                                         

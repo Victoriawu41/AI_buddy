@@ -9,6 +9,7 @@ import base64
 import threading
 from collections import deque
 from datetime import datetime, timedelta
+from dateutil import parser  # Add this import
 
 from flask import Flask, request, Response, stream_with_context, jsonify
 from chatbot import Chatbot
@@ -50,21 +51,58 @@ def parse_code_blocks(text):
         start_idx = end + 3
     return code_blocks
 
+
+def parse_datetime(date_str, time_str):
+    """Parse date and time strings into a datetime object"""
+    try:
+        # Try parsing the combined date and time
+        if date_str and time_str:
+            datetime_str = f"{date_str} {time_str}"
+            return parser.parse(datetime_str).strftime("%Y-%m-%d %H:%M:%S")
+        elif date_str:
+            # If only date is provided, set time to midnight
+            return parser.parse(date_str).strftime("%Y-%m-%d %H:%M:%S")
+        return None
+    except (ValueError, TypeError) as e:
+        print(f"Error parsing datetime: {date_str} {time_str} - {e}")
+        return None
+
+
 def parse_csv_events(csv_text):
     events = []
     reader = csv.DictReader(csv_text.strip().splitlines())
     for row in reader:
-        start = f"{row.get('Start Date','')} {row.get('Start Time','')}".strip()
-        end = f"{row.get('End Date','')} {row.get('End Time','')}".strip()
-        events.append({
-            "title": row.get("Subject","Untitled"),
-            "start": start,
-            "end": end,
-            "description": row.get("Description",""),
-            "reminder_on": row.get("Reminder On", "FALSE").upper() == "TRUE",
-            "reminder_date": row.get("Reminder Date"),
-            "reminder_time": row.get("Reminder Time")
-        })
+        try:
+            # Handle start datetime
+            start_date = row.get('Start Date', '')
+            start_time = row.get('Start Time', '')
+            start_datetime = parse_datetime(start_date, start_time)
+            
+            # Handle end datetime
+            end_date = row.get('End Date', '')
+            end_time = row.get('End Time', '')
+            end_datetime = parse_datetime(end_date, end_time)
+            
+            # Handle reminder datetime
+            reminder_date = row.get('Reminder Date', '')
+            reminder_time = row.get('Reminder Time', '')
+            reminder_datetime = parse_datetime(reminder_date, reminder_time)
+            
+            if start_datetime and end_datetime:  # Only create event if we have valid start and end times
+                events.append({
+                    "title": row.get("Subject", "Untitled"),
+                    "start": start_datetime,
+                    "end": end_datetime,
+                    "description": row.get("Description", ""),
+                    "reminder_on": row.get("Reminder On", "FALSE").upper() == "TRUE",
+                    "reminder_datetime": reminder_datetime
+                })
+            else:
+                print(f"Skipping event due to invalid datetime: {row}")
+        except Exception as e:
+            print(f"Error processing row: {row} - {e}")
+            continue
+            
     return events
 
 
@@ -180,6 +218,7 @@ def pop_notification():
     """Get and remove the next notification"""
     notification = chatbot.pop_notification()
     return jsonify(notification)
+
 
 if __name__ == '__main__':
     try:
