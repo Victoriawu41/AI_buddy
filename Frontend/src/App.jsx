@@ -10,6 +10,7 @@ import Chat from "./pages/Chat";
 import Calendar from "./pages/CalendarPage";
 import PrivateRoute from "./Components/PrivateRoute";
 import Toast from './components/Toast';
+import Logout from "./Components/Logout";
 
 function App() {
   useEffect(() => {
@@ -33,6 +34,7 @@ function App() {
           path="/calendar"
           element={<PrivateRoute element={Calendar} />}
         ></Route>
+        <Route path="/logout" element={<Logout />} />
       </Routes>
     </BrowserRouter>
   );
