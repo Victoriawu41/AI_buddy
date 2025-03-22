@@ -5,13 +5,12 @@ import csv
 import httpx
 from werkzeug.utils import secure_filename
 import os
+import base64
 
 from flask import Flask, request, Response, stream_with_context, jsonify
-from flask_cors import CORS
 from chatbot import Chatbot
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
 
 app.config['SECRET_KEY'] = 'temp_key'
 UPLOAD_FOLDER = 'uploads'
@@ -106,6 +105,27 @@ def get_messages():
             display_msgs.append(msg)
     print(display_msgs)
     return jsonify(display_msgs)
+
+@app.route('/chat/upload', methods=['POST'])
+def upload_file():
+    print("Request Content-Type:", request.content_type)
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    file = request.files['file']
+    filename = request.form.get('filename', file.filename)
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    if file:
+        filename = secure_filename(filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+
+        print(filepath)
+
+        # Convert the file to text and add to messages
+        chatbot.add_file_to_messages(filepath)
+
+        return jsonify({"message": "File uploaded successfully", "filename": filename}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

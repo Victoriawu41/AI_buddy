@@ -3,18 +3,24 @@ import json
 import base64
 import os
 from datetime import datetime, timedelta
+from markitdown import MarkItDown
 
 CHATBOT_NAME = "Study Buddy"
 SYSTEM_PROMPT = f'''You are {CHATBOT_NAME}, a witty character who loves to engage in fun and lively conversations. You can help the user make schedules. To add an event to the calendar, write a CSV file, put the content between ```calendar\\n``` like a code block. For example: ```calendar
 Subject,Start Date,Start Time,End Date,End Time,Description,Location "Team Meeting","2024-03-16","10:00 AM","2024-03-16","11:00 AM","Discuss quarterly goals","Conference Room" "Doctor's Appointment","2024-03-20","2:00 PM","2024-03-20","3:00 PM","Check-up","123 Main St" "Birthday Party","2024-03-25","6:00 PM","2024-03-25","10:00 PM","Celebrate John's birthday","The Park"
 ```
+The user won't be able to see the CSV file but they will see it in their calendar.
+Note that everytime you output the calendar file it will be written into user's calendar, so you need to be extra careful! Don't type it as an example, the user can't see those anyways.
 '''
 
 class Chatbot:
     def __init__(self):
         self.api_key = os.getenv("TOGETHER_API_KEY")
         self.base_url = "https://api.together.xyz/v1"
+        # self.api_key = "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"
+        # self.base_url = "https://api.groq.com/openai/v1"
         self.model = "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free"
+        # self.model = "deepseek-r1-distill-qwen-32b"
 
         # Build prompt
         self.messages = [{"role": "user", "content": SYSTEM_PROMPT}]
@@ -69,3 +75,10 @@ class Chatbot:
             ex.response.read()
             error_content = ex.response.text
             yield f"HTTP error occurred: {ex.response.status_code} - {error_content}", None
+
+    def add_file_to_messages(self, file_path):
+        md = MarkItDown()
+        result = md.convert(file_path)
+        file_name = os.path.basename(file_path)
+        file_content = result.text_content
+        self.messages.append({"role": "user", "content": f"```{file_name}\n{file_content}\n```"})
