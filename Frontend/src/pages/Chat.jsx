@@ -4,12 +4,19 @@ import hljs from 'highlight.js'
 import './Chat.css'
 // import 'katex/dist/katex.min.css'
 import { Markdown } from '../widgets/Markdown'
+import ChatSettings from '../widgets/ChatSettings' // Import the new ChatSettings component
+import { sendToastNotification, sendBrowserNotification, requestNotificationPermission } from '../utils/notifications' // Import notification utilities
 
 const Chat = () => {
   const [chatHistory, setChatHistory] = useState([]);           // Chat history
   const [inputMessage, setInputMessage] = useState('');         // Request
+  const [showSettings, setShowSettings] = useState(false); // State to manage settings menu visibility
+  const [uploadSound] = useState(new Audio('/sounds/notification.mp3')); // Sound for upload notification
 
   useEffect(() => {
+    // Request notification permission when component mounts
+    requestNotificationPermission();
+    
     fetch('http://localhost:8000/ai/chat/messages', {credentials: 'include'})
       .then(res => res.json())
       .then(data => {
@@ -102,13 +109,33 @@ const Chat = () => {
         if (!response.ok) {
           const errorText = await response.text();
           console.error('Upload failed:', response.status, errorText);
+          sendToastNotification(`Upload failed: ${errorText}`, 'error');
           return;
         }
 
         const result = await response.json();
         console.log(result);
+        
+        // Play notification sound
+        try {
+          uploadSound.play();
+        } catch (error) {
+          console.error("Error playing sound:", error);
+        }
+        
+        // Show toast notification
+        sendToastNotification(`File "${file.name}" uploaded successfully!`, 'success');
+        
+        // Show browser notification if the page is not in focus
+        if (!document.hasFocus()) {
+          sendBrowserNotification('File Upload Complete', {
+            body: `Your file "${file.name}" has been uploaded successfully.`,
+            icon: '/favicon.ico'
+          });
+        }
       } catch (err) {
         console.error('Upload error:', err);
+        sendToastNotification('Upload error: ' + err.message, 'error');
       }
     }
   };
@@ -123,6 +150,7 @@ const Chat = () => {
 
   return (
     <div style={{ position: 'relative', height: '100vh' }}>
+      <button className="btn btn-secondary settings-button" onClick={() => setShowSettings(true)} style={{ borderRadius: '10px' }}>Settings</button>
       <div className="messages custom-markdown" style={{ paddingBottom: '80px', overflowY: 'auto', padding: '20px 240px', height: 'calc(100% - 80px)' }}>
         {chatHistory.map((message, index) => (
           <div key={index} className={`message ${message.role}`} style={message.style}>
@@ -146,6 +174,7 @@ const Chat = () => {
         />
         <button className="btn btn-primary" onClick={handleSend} style={{ borderRadius: '10px' }}>Send</button>
       </div>
+      {showSettings && <ChatSettings onClose={() => setShowSettings(false)} />} {/* Render ChatSettings if showSettings is true */}
     </div>
   )
 }

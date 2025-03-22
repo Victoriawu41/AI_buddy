@@ -11,7 +11,7 @@ app.config['SECRET_KEY'] = 'temp_key'
 # Define the microservices URLs
 MICROSERVICES = {
     'auth': 'http://localhost:5001',
-    'ai': 'http://localhost:5000',
+    'ai': 'http://127.0.0.1:5000',
     'calendar': 'http://localhost:8080',
     # Add other microservices here
 }
@@ -47,7 +47,6 @@ def gateway(service, path):
     #check authentification
     if service in protected_services:
         token = request.cookies.get("access_token")
-        # print(token)
         if not token:
             return jsonify({"error": "Authentication required"}), 401
         if not verify_token(token):
@@ -82,4 +81,4 @@ def gateway(service, path):
         return (resp.content, resp.status_code, resp.headers.items())
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=8000, threaded=True)
