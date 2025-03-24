@@ -6,6 +6,9 @@ import httpx
 from werkzeug.utils import secure_filename
 import os
 import base64
+import threading
+from collections import deque
+from datetime import datetime, timedelta
 
 from flask import Flask, request, Response, stream_with_context, jsonify
 from chatbot import Chatbot
@@ -18,6 +21,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 chatbot = Chatbot()
+
+# Global notification queue
+notification_queue = deque()
 
 def verify_token(token):
     try:
@@ -54,9 +60,13 @@ def parse_csv_events(csv_text):
             "title": row.get("Subject","Untitled"),
             "start": start,
             "end": end,
-            "description": row.get("Description","")
+            "description": row.get("Description",""),
+            "reminder_on": row.get("Reminder On", "FALSE").upper() == "TRUE",
+            "reminder_date": row.get("Reminder Date"),
+            "reminder_time": row.get("Reminder Time")
         })
     return events
+
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -65,15 +75,26 @@ def chat():
     #     return jsonify({"error": "Authentication required"}), 401
 
     data = request.json
-    user_name = data.get('user_name')
     messages = data.get('messages')
 
-    if not user_name or not messages:
+    if not messages:
         return {"error": "user_name and messages are required"}, 400
+
+    # Fetch current calendar data before processing the chat
+    try:
+        with httpx.Client() as client:
+            response = client.get("http://localhost:8080/events")
+            if response.status_code == 200:
+                calendar_data = response.json()
+                chatbot.set_calendar_data(calendar_data)
+            else:
+                print(f"Failed to fetch calendar data: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching calendar data: {e}")
 
     def generate():
         response_chunks = []
-        for chunk in chatbot.chat(messages, user_name):
+        for chunk in chatbot.chat(messages):
             response_chunks.append(chunk)
             yield chunk
 
@@ -101,7 +122,8 @@ def get_messages():
 
     display_msgs = []
     for msg in chatbot.messages[1:]:
-        if not msg["content"].endswith(":"):
+        if not msg["content"].endswith(":") and \
+                not msg["content"].startswith("```file"):
             display_msgs.append(msg)
     print(display_msgs)
     return jsonify(display_msgs)
@@ -127,5 +149,40 @@ def upload_file():
 
         return jsonify({"message": "File uploaded successfully", "filename": filename}), 200
 
+
+@app.route('/chat/settings', methods=['POST'])
+def set_settings():
+    data = request.json
+    print("Received settings:", data)
+    chatbot.apply_settings(data)
+    return jsonify({"message": "Settings applied"}), 200
+
+
+@app.route('/chat/settings', methods=['GET'])
+def get_settings():
+    settings = {
+        "assistantName": chatbot.settings.chatbot_name,
+        "assistantSystemPrompt": chatbot.settings.system_prompt,
+        "userName": chatbot.settings.user_name,
+        "userSystemPrompt": chatbot.settings.user_system_prompt,
+    }
+    print(settings)
+    return jsonify(settings), 200
+
+@app.route('/notifications/peek', methods=['GET'])
+def peek_notifications():
+    """Get next notification without removing it"""
+    notification = chatbot.peek_notification()
+    return jsonify(notification)
+
+@app.route('/notifications/pop', methods=['POST'])
+def pop_notification():
+    """Get and remove the next notification"""
+    notification = chatbot.pop_notification()
+    return jsonify(notification)
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    try:
+        app.run(host='0.0.0.0', port=5000)
+    finally:
+        chatbot.stop_notification_checker()
