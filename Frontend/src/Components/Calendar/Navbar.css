@@ -18,9 +18,7 @@
   
   .chat-button-button {
     padding: 15px 25px;
-    font-size: 16px;
-    background-color: #28a745;
-    color: white;
+    font-size: 16px;    color: white;
     border: none;
     border-radius: 30px;
     cursor: pointer;
@@ -29,7 +27,6 @@
   }
   
   .chat-button-button:hover {
-    background-color: #218838;
     transform: translateY(-4px);
   }
   
@@ -91,5 +88,31 @@
   
   .navbar-item:hover {
     background-color: #444;
+  }
+  
+  /* Dark Mode Styles */
+  .vertical-navbar.dark {
+    background-color: #333;
+  }
+  
+  .navbar-item.dark {
+    color: white;
+  }
+  
+  .navbar-item.dark:hover {
+    background-color: #444;
+  }
+  
+  /* Light Mode Styles */
+  .vertical-navbar.light {
+    background-color: #f0f0f0;
+  }
+  
+  .navbar-item.light {
+    color: black;
+  }
+  
+  .navbar-item.light:hover {
+    background-color: #ddd;
   }
   

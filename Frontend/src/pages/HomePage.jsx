@@ -8,6 +8,7 @@ const HomePage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const navigate = useNavigate();
+  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
     // Make an API call to check if the user is authenticated.
@@ -20,6 +21,10 @@ const HomePage = () => {
         setIsAuthenticated(false);
       });
   }, []);
+
+  useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
 
   // While still verifying, show a loading message
   if (isAuthenticated === null) {
@@ -42,10 +47,17 @@ const HomePage = () => {
     navigate('/login');
   };
 
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
+
   return (
     <div>
-      <NavBar />
-      <div className="container mt-5">
+      <NavBar theme={theme} />
+      <button className="theme-toggle" onClick={toggleTheme}>
+        {theme === 'light' ? 'Dark' : 'Light'}
+      </button>
+      <div className={`container mt-5 ${theme}`}>
         <div className="jumbotron text-center animate-jumbotron">
           <h1 className="display-4">Welcome to AI Buddy</h1>
           <p className="lead">Your personal assistant for managing tasks, chatting, and scheduling.</p>
@@ -79,7 +91,7 @@ const HomePage = () => {
       </div>
       {showLoginPrompt && (
         <div className="login-prompt-overlay">
-          <div className="login-prompt">
+          <div className={`login-prompt ${theme}`}>
             <p>Please log in to learn more about this feature.</p>
             <button onClick={redirectToLogin}>Login</button>
           </div>
