@@ -12,6 +12,7 @@ import PrivateRoute from "./Components/PrivateRoute";
 import Toast from './components/Toast';
 import Logout from "./Components/Logout";
 
+
 function App() {
   useEffect(() => {
     reminderService.start();

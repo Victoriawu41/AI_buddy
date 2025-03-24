@@ -1,19 +1,57 @@
 /**
- * Utility functions for handling browser and in-app notifications
+ * Simple notifications system for browser and in-app notifications
  */
 
-// Check if the browser supports notifications
-export const checkNotificationPermission = () => {
+// Store for active toast notifications
+let notificationStore = {
+  toasts: [],
+  callback: null
+};
+
+// Register notification callback
+export const registerNotificationCallback = (callback) => {
+  notificationStore.callback = callback;
+  
+  // Initial notification render
+  if (callback) {
+    callback([...notificationStore.toasts]);
+  }
+};
+
+// Add a toast notification
+export const addToast = (message, type = 'info') => {
+  const id = Date.now();
+  const toast = { id, message, type };
+  
+  notificationStore.toasts.push(toast);
+  
+  if (notificationStore.callback) {
+    notificationStore.callback([...notificationStore.toasts]);
+  }
+  
+  return id;
+};
+
+// Remove a toast notification
+export const removeToast = (id) => {
+  notificationStore.toasts = notificationStore.toasts.filter(toast => toast.id !== id);
+  
+  if (notificationStore.callback) {
+    notificationStore.callback([...notificationStore.toasts]);
+  }
+};
+
+// Get all toast notifications
+export const getToasts = () => {
+  return [...notificationStore.toasts];
+};
+
+// Request browser notification permission
+export const requestNotificationPermission = async () => {
   if (!("Notification" in window)) {
     console.warn("This browser does not support desktop notifications");
     return false;
   }
-  return true;
-};
-
-// Request notification permission
-export const requestNotificationPermission = async () => {
-  if (!checkNotificationPermission()) return false;
   
   if (Notification.permission === "granted") {
     return true;
@@ -28,64 +66,58 @@ export const requestNotificationPermission = async () => {
   }
 };
 
-// Send a browser notification
-export const sendBrowserNotification = (title, options = {}) => {
-  if (Notification.permission === "granted") {
+// Show a browser notification
+export const showBrowserNotification = (title, options = {}) => {
+  if (Notification.permission !== "granted") {
+    return null;
+  }
+  
+  try {
     const notification = new Notification(title, {
       icon: '/favicon.ico',
       ...options
     });
     
-    // Handle notification click if needed
-    notification.onclick = function() {
+    notification.onclick = () => {
       window.focus();
       if (options.onClick) options.onClick();
       notification.close();
     };
     
     return notification;
+  } catch (error) {
+    console.error("Error showing browser notification:", error);
+    return null;
   }
-  return null;
 };
 
-// Toast notification messages stored in memory
-let toastMessages = [];
-// Callback function for updating toast in UI
-let updateToastCallback = null;
-
-// Register a callback to update toast in UI
-export const registerToastCallback = (callback) => {
-  updateToastCallback = callback;
+// Play a notification sound
+export const playNotificationSound = () => {
+  try {
+    const audio = new Audio('/sounds/notification.mp3');
+    return audio.play();
+  } catch (error) {
+    console.error("Error playing notification sound:", error);
+    return Promise.reject(error);
+  }
 };
 
-// Send an in-app toast notification
-export const sendToastNotification = (message, type = 'info', duration = 5000) => {
-  const id = Date.now();
-  const toast = { id, message, type, duration };
-  toastMessages.push(toast);
+// Single function to handle all notification types
+export const notify = (message, options = {}) => {
+  const { type = 'info', sound = true, browser = !document.hasFocus() } = options;
   
-  if (updateToastCallback) {
-    updateToastCallback([...toastMessages]); // Ensure a new array is passed to trigger re-render
+  // Add in-app toast
+  const id = addToast(message, type);
+  
+  // Show browser notification if requested and page not focused
+  if (browser) {
+    showBrowserNotification('Notification', { body: message });
   }
   
-  // Auto-remove after duration
-  setTimeout(() => {
-    removeToast(id);
-  }, duration);
+  // Play sound if requested
+  if (sound) {
+    playNotificationSound().catch(() => {});
+  }
   
   return id;
-};
-
-// Remove a toast notification
-export const removeToast = (id) => {
-  toastMessages = toastMessages.filter(toast => toast.id !== id);
-  
-  if (updateToastCallback) {
-    updateToastCallback([...toastMessages]); // Ensure a new array is passed to trigger re-render
-  }
-};
-
-// Get all toast messages
-export const getToastMessages = () => {
-  return [...toastMessages];
 };

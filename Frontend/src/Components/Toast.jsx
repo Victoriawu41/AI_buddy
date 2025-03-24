@@ -1,39 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import { registerToastCallback, getToastMessages, removeToast } from '../utils/notifications';
+import React, { useState, useEffect } from 'react';
+import { registerNotificationCallback, getToasts, removeToast } from '../utils/notifications';
 import './Toast.css';
 
-const Toast = () => {
+function Toast() {
   const [toasts, setToasts] = useState([]);
 
   useEffect(() => {
-    // Register callback for updates
-    registerToastCallback(setToasts);
+    // Setup toast notification listener
+    registerNotificationCallback(setToasts);
     
-    // Initialize with any existing messages
-    setToasts(getToastMessages());
-    
-    return () => {
-      // Clean up by setting callback to null
-      registerToastCallback(null);
-    };
+    // Cleanup on unmount
+    return () => registerNotificationCallback(null);
   }, []);
 
-  const handleClose = (id) => {
-    removeToast(id);
-  };
-
+  // If no toasts, don't render anything
   if (toasts.length === 0) return null;
 
   return (
     <div className="toast-container">
-      {toasts.map((toast) => (
-        <div key={toast.id} className={`toast-notification toast-${toast.type}`}>
+      {toasts.map(toast => (
+        <div key={toast.id} className={`toast-item toast-${toast.type}`}>
           <div className="toast-content">{toast.message}</div>
-          <button className="toast-close" onClick={() => handleClose(toast.id)}>×</button>
+          <button 
+            type="button"
+            className="toast-close-btn"
+            onClick={() => removeToast(toast.id)}
+          >
+            ×
+          </button>
         </div>
       ))}
     </div>
   );
-};
+}
 
 export default Toast;
