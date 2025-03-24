@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Navbar.css';
 
-const NavBar = () => {
+const NavBar = ({ theme }) => {
   const [isNavVisible, setIsNavVisible] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const navigate = useNavigate();
@@ -43,25 +43,25 @@ const NavBar = () => {
       </button>
 
       {/* Vertical navbar */}
-      <div className={`vertical-navbar ${isNavVisible ? 'show' : ''}`}>
+      <div className={`vertical-navbar ${isNavVisible ? 'show' : ''} ${theme}`}>
         <div className="navbar-content">
-          <Link to="/home" className="navbar-item" onClick={() => setIsNavVisible(false)}>
+          <Link to="/home" className={`navbar-item ${theme}`} onClick={() => setIsNavVisible(false)}>
             Home
           </Link>
           {isAuthenticated ? (
             <>
-              <Link to="/chat" className="navbar-item" onClick={() => setIsNavVisible(false)}>
+              <Link to="/chat" className={`navbar-item ${theme}`} onClick={() => setIsNavVisible(false)}>
                 Chat
               </Link>
-              <Link to="/calendar" className="navbar-item" onClick={() => setIsNavVisible(false)}>
+              <Link to="/calendar" className={`navbar-item ${theme}`} onClick={() => setIsNavVisible(false)}>
                 Calendar
               </Link>
-              <Link to="/logout" className="navbar-item logout-link">
+              <Link to="/logout" className={`navbar-item ${theme} logout-link`}>
                 Logout
               </Link>
             </>
           ) : (
-            <Link to="/login" className="navbar-item" onClick={() => setIsNavVisible(false)}>
+            <Link to="/login" className={`navbar-item ${theme}`} onClick={() => setIsNavVisible(false)}>
               Login
             </Link>
           )}

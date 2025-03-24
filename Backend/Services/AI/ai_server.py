@@ -9,7 +9,8 @@ import base64
 import threading
 from collections import deque
 from datetime import datetime, timedelta
-from dateutil import parser  # Add this import
+from dateutil import parser
+
 
 from flask import Flask, request, Response, stream_with_context, jsonify
 from chatbot import Chatbot
@@ -102,7 +103,6 @@ def parse_csv_events(csv_text):
         except Exception as e:
             print(f"Error processing row: {row} - {e}")
             continue
-            
     return events
 
 
@@ -218,7 +218,6 @@ def pop_notification():
     """Get and remove the next notification"""
     notification = chatbot.pop_notification()
     return jsonify(notification)
-
 
 if __name__ == '__main__':
     try:
