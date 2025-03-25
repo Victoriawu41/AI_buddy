@@ -183,3 +183,9 @@ textarea.form-control {
   padding: 10px 15px;
   resize: none;
 }
+
+.settings-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}

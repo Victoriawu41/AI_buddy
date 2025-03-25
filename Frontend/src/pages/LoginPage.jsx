@@ -29,6 +29,7 @@ const LoginPage = () => {
   const [pass, setPass] = useState("");
   const [email, setEmail] = useState("");
   const [confirmpass, setConfirm] = useState("");
+  const [theme, setTheme] = useState('light');
 
   const loginEndpoint = "http://localhost:8000/auth/login";
   const registerEndpoint = "http://localhost:8000/auth/register";
@@ -207,8 +208,15 @@ const LoginPage = () => {
     }
   };
 
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
+
   return (
-    <div className="login-container">
+    <div className={`login-container ${theme}`}>
+      <button className="theme-toggle" onClick={toggleTheme}>
+        {theme === 'light' ? 'Dark' : 'Light'}
+      </button>
       <div className="login-form">
         <h1>{isLogin ? "Login" : "Create Account"}</h1>
         <TextForm

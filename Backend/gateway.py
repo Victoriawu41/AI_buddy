@@ -11,7 +11,7 @@ app.config['SECRET_KEY'] = 'temp_key'
 # Define the microservices URLs
 MICROSERVICES = {
     'auth': 'http://localhost:5001',
-    'ai': 'http://localhost:5000',
+    'ai': 'http://127.0.0.1:5000',
     'calendar': 'http://localhost:8080',
     'course_info': 'http://localhost:5002',
     # Add other microservices here
@@ -48,7 +48,6 @@ def gateway(service, path):
     #check authentification
     if service in protected_services:
         token = request.cookies.get("access_token")
-        # print(token)
         if not token:
             return jsonify({"error": "Authentication required"}), 401
         if not verify_token(token):
@@ -60,14 +59,23 @@ def gateway(service, path):
     url = f"{MICROSERVICES[service]}/{path}"
     method = request.method
 
+    headers = {key: value for key, value in request.headers if key.lower() != 'host'} 
+    cookies = request.cookies 
+
     if method == 'GET':
-        resp = requests.get(url, params=request.args, stream=True)
+        resp = requests.get(url, params=request.args, headers=headers, cookies=cookies, stream=True)
     elif method == 'POST':
-        resp = requests.post(url, json=request.json, stream=True)
+        if request.content_type and request.content_type.startswith('multipart/form-data'):
+            resp = requests.post(url, files=request.files, data=request.form, stream=True)
+        else:
+            # Handle both JSON and empty bodies
+            data = request.json if request.is_json else {}
+            resp = requests.post(url, json=data, stream=True)
+
     elif method == 'PUT':
-        resp = requests.put(url, json=request.json, stream=True)
+        resp = requests.put(url, json=request.json, headers=headers, cookies=cookies, stream=True)
     elif method == 'DELETE':
-        resp = requests.delete(url, stream=True)
+        resp = requests.delete(url, headers=headers, cookies=cookies, stream=True)
     else:
         return jsonify({"error": "Method not allowed"}), 405
 
@@ -80,4 +88,4 @@ def gateway(service, path):
         return (resp.content, resp.status_code, resp.headers.items())
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=8000, threaded=True)

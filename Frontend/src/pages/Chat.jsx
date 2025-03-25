@@ -4,17 +4,31 @@ import hljs from 'highlight.js'
 import './Chat.css'
 // import 'katex/dist/katex.min.css'
 import { Markdown } from '../widgets/Markdown'
-import '../App.css'
+import ChatSettings from '../widgets/ChatSettings' // Import the new ChatSettings component
+import { notify, requestNotificationPermission } from '../utils/notifications' // Import notification utilities
 
 const Chat = () => {
   const [chatHistory, setChatHistory] = useState([]);           // Chat history
   const [inputMessage, setInputMessage] = useState('');         // Request
+  const [showSettings, setShowSettings] = useState(false); // State to manage settings menu visibility
+  const [uploadSound] = useState(new Audio('/sounds/notification.mp3')); // Sound for upload notification
 
   useEffect(() => {
-    fetch('http://localhost:8000/ai/chat/messages')
+    // Request notification permission when component mounts
+    requestNotificationPermission();
+    
+    fetch('http://localhost:8000/ai/chat/messages', {credentials: 'include'})
       .then(res => res.json())
       .then(data => {
-        setChatHistory(data);
+        const styledData = data.map(message => ({
+          ...message,
+          style: {
+            borderRadius: '5px',
+            padding: '10px',
+            marginBottom: '5px',
+          }
+        }));
+        setChatHistory(styledData);
       })
       .catch(err => console.error(err));
   }, []);
@@ -30,8 +44,8 @@ const Chat = () => {
     if (!inputMessage.trim()) {
       return;
     }
-    const newMessage = { role: 'user', content: inputMessage };
-    const loadingMessage = { role: 'bot', content: '<SPINNER>' };
+    const newMessage = { role: 'user', content: inputMessage, style: { borderRadius: '10px', padding: '10px', marginBottom: '10px'} };
+    const loadingMessage = { role: 'bot', content: '<SPINNER>', style: { borderRadius: '10px', padding: '10px', marginBottom: '10px' } };
     setChatHistory([...chatHistory, newMessage, loadingMessage]);
     setInputMessage('');
 
@@ -39,13 +53,14 @@ const Chat = () => {
       const response = await fetch('http://localhost:8000/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [{ role: 'user', content: inputMessage }], user_name: "User" })
+        body: JSON.stringify({ messages: [{ role: 'user', content: inputMessage }], user_name: "User" }),
+        credentials: 'include'
       });
       const reader = response.body.getReader();
       let partialContent = '';
       setChatHistory((prev) => {
         const updated = [...prev];
-        updated[updated.length - 1] = { role: 'bot', content: '' };
+        updated[updated.length - 1] = { role: 'bot', content: '', style: { borderRadius: '10px', padding: '10px', marginBottom: '10px' } };
         return updated;
       });
       while (true) {
@@ -77,6 +92,39 @@ const Chat = () => {
     e.target.style.height = `${Math.min(e.target.scrollHeight, 600)}px`;
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('filename', file.name);
+
+      try {
+        const response = await fetch('http://localhost:8000/ai/chat/upload', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Upload failed:', response.status, errorText);
+          notify(`Upload failed: ${errorText}`, { type: 'error' });
+          return;
+        }
+
+        // Show success notification with sound
+        notify(`File "${file.name}" uploaded successfully!`, { 
+          type: 'success', 
+          sound: true 
+        });
+      } catch (err) {
+        console.error('Upload error:', err);
+        notify(`Upload error: ${err.message}`, { type: 'error' });
+      }
+    }
+  };
+
   const formatMessage = (message) => {
     if (message.includes('<SPINNER>')) {
       return <div className="spinner" />;
@@ -86,30 +134,32 @@ const Chat = () => {
   }
 
   return (
-    <div className="container" style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      <div className="card" style={{ height: '100%', width: '100%' }}>
-        <div className="card-body" style={{ flex: 1, overflowY: 'scroll' }}>
-          <div className="messages custom-markdown">
-            {chatHistory.map((message, index) => (
-              <div key={index} className={`message ${message.role}`}>
-                {formatMessage(message.content)}
-              </div>
-            ))}
+    <div style={{ position: 'relative', height: '100vh' }}>
+      <button className="btn btn-secondary settings-button" onClick={() => setShowSettings(true)} style={{ borderRadius: '10px' }}>Settings</button>
+      <div className="messages custom-markdown" style={{ paddingBottom: '80px', overflowY: 'auto', padding: '20px 240px', height: 'calc(100% - 80px)' }}>
+        {chatHistory.map((message, index) => (
+          <div key={index} className={`message ${message.role}`} style={message.style}>
+            {formatMessage(message.content)}
           </div>
-        </div>
-        
-        <div className="card-footer d-flex">
-          <textarea
-            className="form-control me-2"
-            placeholder="Type your message..."
-            value={inputMessage}
-            onChange={handleInputChange}
-            rows="1"
-            style={{ overflow: 'hidden', maxHeight: '600px' }} // Limit the height to 200px
-          />
-          <button className="btn btn-primary" onClick={handleSend}>Send</button>
-        </div>
+        ))}
       </div>
+      
+      <div className="d-flex" style={{ position: 'absolute', bottom: 0, width: '100%', background: '#fff', padding: '20px 400px', boxShadow: '0 -2px 5px rgba(0,0,0,0.1)' }}>
+        <label className="btn btn-secondary me-2">
+          +
+          <input type="file" style={{ display: 'none' }} onChange={handleFileUpload} />
+        </label>
+        <textarea
+          className="form-control me-2"
+          placeholder="Type your message..."
+          value={inputMessage}
+          onChange={handleInputChange}
+          rows="1"
+          style={{ overflow: 'hidden', maxHeight: '600px', borderRadius: '10px' }}
+        />
+        <button className="btn btn-primary" onClick={handleSend} style={{ borderRadius: '10px' }}>Send</button>
+      </div>
+      {showSettings && <ChatSettings onClose={() => setShowSettings(false)} />} {/* Render ChatSettings if showSettings is true */}
     </div>
   )
 }
