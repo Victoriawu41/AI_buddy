@@ -1,267 +1,325 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "General Course Information Schema",
-    "type": "object",
-    "properties": {
-      "course": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier or code for the course"
-          },
-          "title": {
-            "type": "string",
-            "description": "Full course title"
-          },
-          "term": {
-            "type": "string",
-            "description": "Term or semester identifier"
-          },
-          "lecture_sections": {
-            "type": "array",
-            "description": "List of lecture sections",
-            "items": {
-              "type": "object",
-              "properties": {
-                "identifier": {
-                  "type": "string",
-                  "description": "Identifier for the lecture section (e.g., '0101')"
-                },
-                "time": {
-                  "type": "string",
-                  "description": "Scheduled time for the lecture section"
-                }
-              },
-              "required": ["identifier", "time"]
-            }
-          },
-          "tutorial_sections": {
-            "type": "array",
-            "description": "List of tutorial sections",
-            "items": {
-              "type": "object",
-              "properties": {
-                "identifier": {
-                  "type": "string",
-                  "description": "Identifier for the tutorial section"
-                },
-                "time": {
-                  "type": "string",
-                  "description": "Scheduled time for the tutorial section"
-                }
-              },
-              "required": ["identifier", "time"]
-            }
-          },
-          "communication": {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "General Course Information Schema",
+  "type": "object",
+  "properties": {
+    "course": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier or code for the course"
+        },
+        "title": {
+          "type": "string",
+          "description": "Full course title"
+        },
+        "course_url": {
+          "type": "string",
+          "description": "Url of course website (e.g., 'https://q.utoronto.ca/courses/373305')"
+        },
+        "term": {
+          "type": "string",
+          "description": "Term or semester identifier"
+        },
+        "lecture_sections": {
+          "type": "array",
+          "description": "List of lecture sections",
+          "items": {
             "type": "object",
-            "description": "Communication channels for the course",
             "properties": {
-              "platforms": {
-                "type": "array",
-                "description": "List of communication platforms",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "type": "string",
-                      "description": "Name of the communication platform (e.g., Piazza, Canvas)"
-                    },
-                    "url": {
-                      "type": "string",
-                      "format": "uri",
-                      "description": "URL for the communication platform"
-                    }
-                  },
-                  "required": ["name", "url"]
-                }
+              "identifier": {
+                "type": "string",
+                "description": "Identifier for the lecture section (e.g., '0101')"
+              },
+              "time": {
+                "type": "string",
+                "description": "Scheduled time for the lecture section"
               }
             },
-            "required": ["platforms"]
-          },
-          "labs": {
-            "type": "object",
-            "description": "Information about lab sessions",
-            "properties": {
-              "start_week": {
-                "type": "number",
-                "description": "Week number when labs begin"
-              },
-              "submission": {
+            "required": [
+              "identifier",
+              "time"
+            ]
+          }
+        },
+        "communication": {
+          "type": "object",
+          "description": "Communication channels for the course",
+          "properties": {
+            "platforms": {
+              "type": "array",
+              "description": "List of communication platforms",
+              "items": {
                 "type": "object",
-                "description": "Lab submission details",
                 "properties": {
-                  "platform": {
+                  "name": {
                     "type": "string",
-                    "description": "Submission platform (e.g., MarkUs)"
+                    "description": "Name of the communication platform (e.g., Piazza, Canvas)"
                   },
-                  "policy": {
+                  "url": {
                     "type": "string",
-                    "description": "Submission policy details"
+                    "format": "uri",
+                    "description": "URL for the communication platform"
                   }
                 },
-                "required": ["platform", "policy"]
-              },
-              "schedule": {
-                "type": "array",
-                "description": "Schedule of lab sessions",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "week": {
-                      "type": "number",
-                      "description": "Lab week number"
-                    },
-                    "date": {
-                      "type": "string",
-                      "description": "Date of the lab session"
-                    },
-                    "topic": {
-                      "type": "string",
-                      "description": "Topic of the lab session"
-                    },
-                    "notes": {
-                      "type": "string",
-                      "description": "Additional notes (optional)"
-                    }
-                  },
-                  "required": ["week", "date", "topic"]
-                }
+                "required": [
+                  "name",
+                  "url"
+                ]
               }
-            },
-            "required": ["start_week", "submission", "schedule"]
+            }
           },
-          "office_hours": {
+          "required": [
+            "platforms"
+          ]
+        },
+        "labs": {
+          "type": "object",
+          "description": "Information about lab sessions",
+          "properties": {
+            "start_week": {
+              "type": "number",
+              "description": "Week number when labs begin"
+            },
+            "submission": {
+              "type": "object",
+              "description": "Lab submission details",
+              "properties": {
+                "platform": {
+                  "type": "string",
+                  "description": "Submission platform (e.g., MarkUs)"
+                },
+                "policy": {
+                  "type": "string",
+                  "description": "Submission policy details"
+                }
+              },
+              "required": [
+                "platform",
+                "policy"
+              ]
+            },
+            "schedule": {
+              "type": "array",
+              "description": "Schedule of lab sessions",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "week": {
+                    "type": "number",
+                    "description": "Lab week number"
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Date of the lab session"
+                  },
+                  "topic": {
+                    "type": "string",
+                    "description": "Topic of the lab session"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "description": "Additional notes (optional)"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "description": "Lab materials",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the resource"
+                        },
+                        "link": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "URL to the resource"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "link"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "week",
+                  "date",
+                  "topic"
+                ]
+              }
+            }
+          },
+          "required": [
+            "start_week",
+            "submission",
+            "schedule"
+          ]
+        },
+        "office_hours": {
+          "type": "object",
+          "description": "Office hours for course staff",
+          "properties": {
+            "staff": {
+              "type": "array",
+              "description": "List of staff members with office hours",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the staff member"
+                  },
+                  "role": {
+                    "type": "string",
+                    "description": "Role (e.g., Instructor, TA)"
+                  },
+                  "schedule": {
+                    "type": "array",
+                    "description": "Office hours schedule for the staff member",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "day": {
+                          "type": "string",
+                          "description": "Day of the week"
+                        },
+                        "time": {
+                          "type": "string",
+                          "description": "Time range for office hours"
+                        }
+                      },
+                      "required": [
+                        "day",
+                        "time"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "role",
+                  "schedule"
+                ]
+              }
+            }
+          },
+          "required": [
+            "staff"
+          ]
+        },
+        "lectures": {
+          "type": "array",
+          "description": "List of lectures",
+          "items": {
             "type": "object",
-            "description": "Office hours for course staff",
             "properties": {
-              "staff": {
+              "number": {
+                "type": "number",
+                "description": "Lecture number"
+              },
+              "topic": {
+                "type": "string",
+                "description": "Topic or title of the lecture"
+              },
+              "resources": {
                 "type": "array",
-                "description": "List of staff members with office hours",
+                "description": "Lecture resources",
                 "items": {
                   "type": "object",
                   "properties": {
                     "name": {
                       "type": "string",
-                      "description": "Name of the staff member"
+                      "description": "Name of the resource"
                     },
-                    "role": {
+                    "link": {
                       "type": "string",
-                      "description": "Role (e.g., Instructor, TA)"
-                    },
-                    "schedule": {
-                      "type": "array",
-                      "description": "Office hours schedule for the staff member",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "day": {
-                            "type": "string",
-                            "description": "Day of the week"
-                          },
-                          "time": {
-                            "type": "string",
-                            "description": "Time range for office hours"
-                          }
-                        },
-                        "required": ["day", "time"]
-                      }
+                      "format": "uri",
+                      "description": "URL to the resource"
                     }
                   },
-                  "required": ["name", "role", "schedule"]
+                  "required": [
+                    "name",
+                    "link"
+                  ]
                 }
               }
             },
-            "required": ["staff"]
-          },
-          "lectures": {
-            "type": "array",
-            "description": "List of lectures",
-            "items": {
-              "type": "object",
-              "properties": {
-                "number": {
-                  "type": "number",
-                  "description": "Lecture number"
-                },
-                "topic": {
-                  "type": "string",
-                  "description": "Topic or title of the lecture"
-                },
-                "resources": {
-                  "oneOf": [
-                    {
+            "required": [
+              "number",
+              "topic"
+            ]
+          }
+        },
+        "assignments": {
+          "type": "array",
+          "description": "List of assignments, projects, or other graded work",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the assignment or project"
+              },
+              "details": {
+                "type": "string",
+                "description": "Additional details about the assignment (optional)"
+              },
+              "resources": {
+                "type": "array",
+                "description": "Assignment resources",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
                       "type": "string",
-                      "description": "A single resource link or filename"
+                      "description": "Name of the resource"
                     },
-                    {
-                      "type": "array",
-                      "description": "List of resource links or filenames",
-                      "items": { "type": "string" }
+                    "link": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "URL to the resource"
                     }
+                  },
+                  "required": [
+                    "name",
+                    "link"
                   ]
                 }
               },
-              "required": ["number", "topic"]
-            }
-          },
-          "assignments": {
-            "type": "array",
-            "description": "List of assignments, projects, or other graded work",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "Name of the assignment or project"
-                },
-                "details": {
-                  "type": "string",
-                  "description": "Additional details about the assignment (optional)"
-                },
-                "file": {
-                  "type": "string",
-                  "description": "Link or filename for the assignment submission file"
-                },
-                "group_info": {
-                  "type": "string",
-                  "description": "Information about allowed group sizes (optional)"
-                },
-                "deadline": {
-                  "type": "string",
-                  "description": "Deadline for the assignment (optional)"
-                }
-              },
-              "required": ["name", "file"]
-            }
-          },
-          "files": {
-            "type": "object",
-            "description": "Mapping of file names to their URL links",
-            "patternProperties": {
-              ".*": {
+              "group_info": {
                 "type": "string",
-                "format": "uri"
+                "description": "Information about allowed group sizes (optional)"
+              },
+              "deadline": {
+                "type": "string",
+                "description": "Deadline for the assignment (optional)"
               }
             },
-            "additionalProperties": false
+            "required": [
+              "name",
+              "resources"
+            ]
           }
-        },
-        "required": [
-          "id",
-          "title",
-          "term",
-          "lecture_sections",
-          "communication",
-          "labs",
-          "office_hours",
-          "lectures",
-          "assignments",
-          "files"
-        ]
-      }
-    },
-    "required": ["course"]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "term",
+        "lecture_sections",
+        "communication",
+        "labs",
+        "office_hours",
+        "lectures",
+        "assignments"
+      ]
+    }
+  },
+  "required": [
+    "course"
+  ]
 }
-  

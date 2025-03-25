@@ -71,7 +71,15 @@ function sendData(fullHtml, url, statusEl) {
             if (response.ok) {
                 statusEl.textContent = 'Scraping and sending data succeeded.';
             } else if (response.status === 401) {
-                statusEl.textContent = 'Failed to send data. Please log in at http://localhost:5173.';
+                statusEl.textContent = 'Failed to send data. Please log in at ';
+
+                const link = document.createElement('a');
+                link.href = 'http://localhost:5173';
+                link.textContent = 'http://localhost:5173';
+                link.target = '_blank'; // Open in new tab
+                
+                // Append the link to status element
+                statusEl.appendChild(link);
             } else {
                 statusEl.textContent =
                     'Failed to send data. Server responded with status ' + response.status;

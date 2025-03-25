@@ -1,7 +1,6 @@
 flask
 flask-cors
 httpx
-beautifulsoup4
 flask-sqlalchemy
 flask-bcrypt
 psycopg2
