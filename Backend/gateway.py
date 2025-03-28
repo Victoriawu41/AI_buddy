@@ -65,11 +65,11 @@ def gateway(service, path):
         resp = requests.get(url, params=request.args, headers=headers, cookies=cookies, stream=True)
     elif method == 'POST':
         if request.content_type and request.content_type.startswith('multipart/form-data'):
-            resp = requests.post(url, files=request.files, data=request.form, stream=True)
+            resp = requests.post(url, files=request.files, data=request.form, cookies=cookies, stream=True)
         else:
             # Handle both JSON and empty bodies
             data = request.json if request.is_json else {}
-            resp = requests.post(url, json=data, stream=True)
+            resp = requests.post(url, json=data, cookies=cookies, stream=True)
 
     elif method == 'PUT':
         resp = requests.put(url, json=request.json, headers=headers, cookies=cookies, stream=True)
