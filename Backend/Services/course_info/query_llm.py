@@ -41,20 +41,22 @@ prompt_template = ChatPromptTemplate.from_messages(
     ]
 )
 
-with open("debug_files/info.json") as f:
-    misc_info = str(json.load(f))
-with open("debug_files/wiki_page.md") as f:
-    course_website = f.read()
-course_syllabus = process_pdf("debug_files/20251_CSC301H5S_LEC0101_syllabus.pdf")
+def query_llm():
+    """Query the LLM for course information."""    
+    with open("debug_files/info.json") as f:
+        misc_info = str(json.load(f))
+    with open("debug_files/wiki_page.md") as f:
+        course_website = f.read()
+    course_syllabus = process_pdf("debug_files/20251_CSC301H5S_LEC0101_syllabus.pdf")
 
-prompt = prompt_template.invoke({"misc_info": misc_info, "course_website": course_website, "course_syllabus": course_syllabus})
+    prompt = prompt_template.invoke({"misc_info": misc_info, "course_website": course_website, "course_syllabus": course_syllabus})
 
-general_course_info = {}
+    general_course_info = {}
 
-for field in HIGH_LEVEL_FIELDS:
-    structured_llm = llm.with_structured_output(schema=field)
-    info = structured_llm.invoke(prompt)
-    general_course_info[field.__name__] = info
-    print(field.__name__)
+    for field in HIGH_LEVEL_FIELDS:
+        structured_llm = llm.with_structured_output(schema=field)
+        info = structured_llm.invoke(prompt)
+        general_course_info[field.__name__] = info
+        print(field.__name__)
 
-print(save_course_models(general_course_info))
+    print(save_course_models(general_course_info))

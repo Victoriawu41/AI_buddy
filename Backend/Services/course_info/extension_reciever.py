@@ -2,11 +2,13 @@ import flask
 from quercus_html_parser import get_ENV_dict
 import json
 from markdownify import markdownify as md
+from query_llm import query_llm
 
 app = flask.Flask(__name__)
 
 @app.route('/quercus_scrape', methods=['POST'])
 def extension_reciever():
+    print('recieved')
     data = flask.request.json
     env_dict = get_ENV_dict(data['html'])
     url = data['url']
@@ -17,7 +19,7 @@ def extension_reciever():
         text_file.write(md(body))
     env_dict["WIKI_PAGE"].pop("body")
     json.dump(env_dict, open('debug_files/info.json', 'w'), indent=2)
-    print(url)
+    query_llm()
 
     return 'OK'
 

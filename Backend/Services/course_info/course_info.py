@@ -654,7 +654,7 @@ def get_all_course_info(course_id: str) -> Dict[str, Any]:
             communication=communication,
             textbooks=json.loads(course.textbooks) if course.textbooks else []
         )
-        result["CourseInformation"] = course_info.dict(exclude_none=True)
+        result["CourseInformation"] = course_info.model_dump(mode="json", exclude_none=True)
         
         # Convert LectureSections
         lecture_sections = []
@@ -667,7 +667,7 @@ def get_all_course_info(course_id: str) -> Dict[str, Any]:
         if lecture_sections:
             result["LectureSections"] = LectureSections(
                 lecture_sections=lecture_sections
-            ).dict(exclude_none=True)
+            ).model_dump(mode="json", exclude_none=True)
         
         # Get Labs
         labs_model = session.query(LabsModel).filter_by(course_id=course.id).first()
@@ -701,7 +701,7 @@ def get_all_course_info(course_id: str) -> Dict[str, Any]:
                 submission=submission,
                 schedule=schedule if schedule else None
             )
-            result["Labs"] = labs.dict(exclude_none=True)
+            result["Labs"] = labs.model_dump(mode="json", exclude_none=True)
         
         # Get OfficeHours
         office_hours_model = session.query(OfficeHoursModel).filter_by(course_id=course.id).first()
@@ -722,7 +722,7 @@ def get_all_course_info(course_id: str) -> Dict[str, Any]:
                 ))
             
             office_hours = OfficeHours(staff=staff_items)
-            result["OfficeHours"] = office_hours.dict(exclude_none=True)
+            result["OfficeHours"] = office_hours.model_dump(mode="json", exclude_none=True)
         
         # Get Lectures
         lectures_model = session.query(LecturesCollectionModel).filter_by(course_id=course.id).first()
@@ -743,7 +743,7 @@ def get_all_course_info(course_id: str) -> Dict[str, Any]:
                 ))
             
             lectures = Lectures(lectures=lecture_items)
-            result["Lectures"] = lectures.dict(exclude_none=True)
+            result["Lectures"] = lectures.model_dump(mode="json", exclude_none=True)
         
         # Get Assignments
         assignments_model = session.query(AssignmentsCollectionModel).filter_by(course_id=course.id).first()
@@ -768,7 +768,7 @@ def get_all_course_info(course_id: str) -> Dict[str, Any]:
                 ))
             
             assignments = Assignments(assignments=assignment_items)
-            result["Assignments"] = assignments.dict(exclude_none=True)
+            result["Assignments"] = assignments.model_dump(mode="json", exclude_none=True)
         
         # Get Tests
         tests_model = session.query(TestsCollectionModel).filter_by(course_id=course.id).first()
@@ -795,7 +795,7 @@ def get_all_course_info(course_id: str) -> Dict[str, Any]:
                 ))
             
             tests = Tests(tests=test_items)
-            result["Tests"] = tests.dict(exclude_none=True)
+            result["Tests"] = tests.model_dump(mode="json", exclude_none=True)
         
         return {"success": True, "data": result}
     

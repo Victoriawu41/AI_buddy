@@ -21,6 +21,7 @@ def course_info(course_id):
         return jsonify({"success": False, "error": "Course ID is required"}), 400
     
     result = get_all_course_info(course_id)
+    print(result)
     if result.get("success"):
         return jsonify(result)
     else:
