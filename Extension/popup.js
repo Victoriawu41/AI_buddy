@@ -56,7 +56,7 @@ function sendData(fullHtml, url, statusEl) {
             return;
         }
 
-        fetch('http://localhost:8000/course_info/quercus_scrape', {
+        fetch('http://localhost:8000/quercus_scrape/quercus_scrape', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
