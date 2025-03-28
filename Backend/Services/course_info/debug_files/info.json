@@ -1,0 +1,41 @@
+{
+  "COURSE": {
+    "id": "373305",
+    "long_name": "CSC301H5 S LEC0101 20251:Introduction to Software Engineering - CSC301H5 S LEC0101",
+    "pages_url": "https://q.utoronto.ca/courses/373305/pages",
+    "is_student": true,
+    "is_instructor": false,
+    "is_published": true,
+    "front_page_title": "2025_301FirstPage",
+    "default_view": "wiki"
+  },
+  "current_context": {
+    "id": "373305",
+    "name": "CSC301H5 S LEC0101 20251:Introduction to Software Engineering",
+    "type": "Course",
+    "url": "https://q.utoronto.ca/courses/373305"
+  },
+  "WIKI_PAGE": {
+    "title": "2025_301FirstPage",
+    "created_at": "2025-01-06T10:30:08-05:00",
+    "url": "2025-301firstpage",
+    "editing_roles": "teachers",
+    "page_id": "2032518",
+    "last_edited_by": {
+      "id": "361708",
+      "anonymous_id": "7r3g",
+      "display_name": "Andi Bergen",
+      "avatar_image_url": "https://q.utoronto.ca/images/messages/avatar-50.png",
+      "html_url": "https://q.utoronto.ca/courses/373305/users/361708",
+      "pronouns": null
+    },
+    "published": true,
+    "hide_from_students": false,
+    "front_page": true,
+    "html_url": "https://q.utoronto.ca/courses/373305/pages/2025-301firstpage",
+    "todo_date": null,
+    "publish_at": null,
+    "updated_at": "2025-02-26T07:19:20-05:00",
+    "locked_for_user": false
+  }
+}
