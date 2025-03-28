@@ -18,7 +18,7 @@
   
   .chat-button-button {
     padding: 15px 25px;
-    font-size: 16px;    color: white;
+    font-size: 16px;    color: rgb(29, 29, 29);
     border: none;
     border-radius: 30px;
     cursor: pointer;

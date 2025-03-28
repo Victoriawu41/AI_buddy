@@ -4,11 +4,16 @@ import axios from 'axios';
 import NavBar from "../Components/Calendar/Navbar";
 import './HomePage.css';
 
+import { ThemeContext } from '../ThemeContext';
+import { useContext } from 'react';
+
+
 const HomePage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const navigate = useNavigate();
-  const [theme, setTheme] = useState('light');
+  // const [theme, setTheme] = useState('light');
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   useEffect(() => {
     // Make an API call to check if the user is authenticated.
@@ -22,9 +27,9 @@ const HomePage = () => {
       });
   }, []);
 
-  useEffect(() => {
-    document.body.className = theme;
-  }, [theme]);
+  // useEffect(() => {
+  //   document.body.className = theme;
+  // }, [theme]);
 
   // While still verifying, show a loading message
   if (isAuthenticated === null) {
@@ -47,9 +52,9 @@ const HomePage = () => {
     navigate('/login');
   };
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
-  };
+  // const toggleTheme = () => {
+  //   setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  // };
 
   return (
     <div>
