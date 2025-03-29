@@ -54,8 +54,8 @@
   
   /* Light Mode Styles */
   body.light {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: #f8f9fa;
+    color: #212529;
   }
   
   .container.light {
@@ -65,8 +65,8 @@
   
   /* Dark Mode Styles */
   body.dark {
-    background-color: #121212;
-    color: #ffffff;
+    background-color: #1e1e1e;
+    color: #e0e0e0;
   }
   
   .container.dark {
