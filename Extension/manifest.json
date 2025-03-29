@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "Course Scraper",
+    "version": "1.0",
+    "description": "Scrapes course pages and sends full HTML to a specified endpoint.",
+    "permissions": ["activeTab", "scripting","cookies"],
+    "host_permissions": ["http://localhost:5173/","http://localhost:8000/"],
+    "action": {
+      "default_popup": "popup.html",
+      "default_title": "Course Scraper"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://q.utoronto.ca/courses/*"],
+            "js": ["content.js"]
+        }
+    ],
+    "background": {
+        "service_worker": "background.js"
+    }
+}
+  

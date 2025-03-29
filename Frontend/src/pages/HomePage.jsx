@@ -57,7 +57,7 @@ const HomePage = () => {
       <button className="theme-toggle" onClick={toggleTheme}>
         {theme === 'light' ? 'Dark' : 'Light'}
       </button>
-      <div className={`container mt-5 ${theme}`}>
+      <div className={`container ${theme}`}>
         <div className="jumbotron text-center animate-jumbotron">
           <h1 className="display-4">Welcome to AI Buddy</h1>
           <p className="lead">Your personal assistant for managing tasks, chatting, and scheduling.</p>

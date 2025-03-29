@@ -13,6 +13,8 @@ MICROSERVICES = {
     'auth': 'http://localhost:5001',
     'ai': 'http://127.0.0.1:5000',
     'calendar': 'http://localhost:8080',
+    'course_info': 'http://localhost:5003',
+    'quercus_scrape': 'http://localhost:5002'
     # Add other microservices here
 }
 def verify_token(token):
@@ -42,7 +44,7 @@ def gateway(service, path):
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response, 200  
     
-    protected_services = ['ai', 'calendar']
+    protected_services = ['ai', 'calendar', 'course_info']
 
     #check authentification
     if service in protected_services:
