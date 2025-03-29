@@ -4,3 +4,4 @@ __pycache__/
 # Ignore database files
 *.db
 Backend/Services/AI/uploads
+.venv
