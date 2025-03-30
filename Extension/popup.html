@@ -22,10 +22,36 @@
       margin-top: 10px;
       padding: 5px 10px;
     }
+    select {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .info-message {
+      margin: 10px 0;
+      font-size: 12px;
+      color: #555;
+    }
+    .info-message a {
+      color: #0078d7;
+      text-decoration: none;
+    }
+    .info-message a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <h1 id="info" placeholder="Enter extra info..."></h1>
+  <div class="form-group">
+    <label for="syllabusFileName">Syllabus File:</label>
+    <select id="syllabusFileName">
+      <option value="">Select a syllabus file...</option>
+      <!-- Options will be populated dynamically -->
+    </select>
+  </div>
+  <div class="info-message">
+    Please upload the syllabus for this class at <a href="http://localhost:5173/chat" target="_blank">http://localhost:5173/chat</a>
+  </div>
   <button id="scrapeBtn">Scrape Course Page</button>
   <div id="status"></div>
 

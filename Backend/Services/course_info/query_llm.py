@@ -1,8 +1,6 @@
 from langchain_together import ChatTogether
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from course_model import HIGH_LEVEL_FIELDS
-import json
-from process_pdf import process_pdf
 from langchain_core.rate_limiters import InMemoryRateLimiter
 from course_info import save_course_models
 
@@ -41,14 +39,8 @@ prompt_template = ChatPromptTemplate.from_messages(
     ]
 )
 
-def query_llm():
+def query_llm(misc_info, course_website, course_syllabus):
     """Query the LLM for course information."""    
-    with open("debug_files/info.json") as f:
-        misc_info = str(json.load(f))
-    with open("debug_files/wiki_page.md") as f:
-        course_website = f.read()
-    course_syllabus = process_pdf("debug_files/20251_CSC301H5S_LEC0101_syllabus.pdf")
-
     prompt = prompt_template.invoke({"misc_info": misc_info, "course_website": course_website, "course_syllabus": course_syllabus})
 
     general_course_info = {}
