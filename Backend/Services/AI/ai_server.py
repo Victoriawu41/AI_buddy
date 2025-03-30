@@ -10,6 +10,7 @@ import threading
 from collections import deque
 from datetime import datetime, timedelta
 from dateutil import parser
+import sqlite3
 
 
 from flask import Flask, request, Response, stream_with_context, jsonify
@@ -22,10 +23,27 @@ UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-chatbot = Chatbot()
+#chatbot = Chatbot()
+chatbot = None
+chatbot_collection = {}
 
 # Global notification queue
 notification_queue = deque()
+
+def init_db():
+    conn = sqlite3.connect("chat.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS chats (
+        user_id INTEGER NOT NULL,
+        role TEXT NOT NULL,
+        content TEXT NOT NULL
+    )""")
+
+    conn.commit()
+    conn.close()
+
 
 def verify_token(token):
     try:
@@ -35,6 +53,10 @@ def verify_token(token):
         return None
     except jwt.InvalidTokenError:
         return None
+    
+def get_user_id(token):
+    payload = verify_token(token)
+    return payload.get('user_id')
 
 def parse_code_blocks(text):
     code_blocks = []
@@ -105,13 +127,20 @@ def parse_csv_events(csv_text):
             continue
     return events
 
+def getChatbot(token):
+    id = get_user_id(token)
+    chatbot = chatbot_collection.get(id, None)
+    if (chatbot is None):
+        chatbot = Chatbot(id)
+        chatbot_collection.update({id: chatbot})
+    return chatbot
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    # token = request.cookies.get("access_token")
-    # if not token or not verify_token(token):
-    #     return jsonify({"error": "Authentication required"}), 401
-
+    token = request.cookies.get("access_token")
+    if not token or not verify_token(token):
+        return jsonify({"error": "Authentication required"}), 401
+    chatbot = getChatbot(token)
     data = request.json
     messages = data.get('messages')
 
@@ -121,7 +150,7 @@ def chat():
     # Fetch current calendar data before processing the chat
     try:
         with httpx.Client() as client:
-            response = client.get("http://localhost:8080/events")
+            response = client.get("http://localhost:8080/events", headers={"Cookie": "access_token=" + token})
             if response.status_code == 200:
                 calendar_data = response.json()
                 chatbot.set_calendar_data(calendar_data)
@@ -142,7 +171,7 @@ def chat():
             if block_type == "csv" or block_type == "calendar":
                 for evt in parse_csv_events(block_content):
                     with httpx.Client() as client:
-                        client.post("http://localhost:8080/events", json=evt)
+                        client.post("http://localhost:8080/events", json=evt, headers={"Cookie:" "access_token=" + token})
             else:
                 print(f"Found {block_type} block:")
                 print(block_content)
@@ -154,10 +183,10 @@ def chat():
 
 @app.route('/chat/messages', methods=['GET'])
 def get_messages():
-    # token = request.cookies.get("access_token")
-    # if not token or not verify_token(token):
-    #     return jsonify({"error": "Authentication required"}), 401
-
+    token = request.cookies.get("access_token")
+    if not token or not verify_token(token):
+        return jsonify({"error": "Authentication required"}), 401
+    chatbot = getChatbot(token)
     display_msgs = []
     for msg in chatbot.messages[1:]:
         if not msg["content"].endswith(":") and \
@@ -168,6 +197,10 @@ def get_messages():
 
 @app.route('/chat/upload', methods=['POST'])
 def upload_file():
+    token = request.cookies.get("access_token")
+    if not token or not verify_token(token):
+        return jsonify({"error": "Authentication required"}), 401
+    chatbot = getChatbot(token)
     print("Request Content-Type:", request.content_type)
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
@@ -190,6 +223,10 @@ def upload_file():
 
 @app.route('/chat/settings', methods=['POST'])
 def set_settings():
+    token = request.cookies.get("access_token")
+    if not token or not verify_token(token):
+        return jsonify({"error": "Authentication required"}), 401
+    chatbot = getChatbot(token)
     data = request.json
     print("Received settings:", data)
     chatbot.apply_settings(data)
@@ -198,6 +235,10 @@ def set_settings():
 
 @app.route('/chat/settings', methods=['GET'])
 def get_settings():
+    token = request.cookies.get("access_token")
+    if not token or not verify_token(token):
+        return jsonify({"error": "Authentication required"}), 401
+    chatbot = getChatbot(token)
     settings = {
         "assistantName": chatbot.settings.chatbot_name,
         "assistantSystemPrompt": chatbot.settings.system_prompt,
@@ -209,18 +250,28 @@ def get_settings():
 
 @app.route('/notifications/peek', methods=['GET'])
 def peek_notifications():
+    token = request.cookies.get("access_token")
+    if not token or not verify_token(token):
+        return jsonify({"error": "Authentication required"}), 401
+    chatbot = getChatbot(token)
     """Get next notification without removing it"""
     notification = chatbot.peek_notification()
     return jsonify(notification)
 
 @app.route('/notifications/pop', methods=['POST'])
 def pop_notification():
+    token = request.cookies.get("access_token")
+    if not token or not verify_token(token):
+        return jsonify({"error": "Authentication required"}), 401
+    chatbot = getChatbot(token)
     """Get and remove the next notification"""
     notification = chatbot.pop_notification()
     return jsonify(notification)
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0', port=5000)
+        init_db()
+        app.run(host='0.0.0.0', port=5000, debug=True)
     finally:
-        chatbot.stop_notification_checker()
+        for id, chatbot in chatbot_collection.items(): 
+            chatbot.stop_notification_checker()
