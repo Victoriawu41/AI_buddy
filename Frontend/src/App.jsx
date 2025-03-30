@@ -36,7 +36,7 @@ function App() {
           path="/calendar"
           element={<PrivateRoute element={Calendar} />}
         ></Route>
-        <Route path="/course-info" element={<CourseInfoPage />} />
+        <Route path="/quercus-scraper" element={<CourseInfoPage />} />
         <Route path="/logout" element={<Logout />} />
       </Routes>
     </BrowserRouter>
