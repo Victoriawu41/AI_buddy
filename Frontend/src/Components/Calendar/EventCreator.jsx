@@ -3,9 +3,12 @@ import axios from "axios";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import AddEventButton from './AddEventButton';
 import CsvUploader from './CsvUploader';
+import { ThemeContext } from '../../ThemeContext';
+import { useContext } from 'react';
 
 const EventCreator = ({ onEventAdded }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const { theme, toggleTheme } = useContext(ThemeContext);
     
     // for SQLite POST
     const handleCSVUpload = async (csvEvents) => {
@@ -34,6 +37,8 @@ const EventCreator = ({ onEventAdded }) => {
         }
     }
 
+    const backgroundColor = theme === 'light' ? '#ffffff' : '#141414';
+    
     return (
         <div className='position-relative'>
             {/* Plus Button */}
@@ -43,7 +48,7 @@ const EventCreator = ({ onEventAdded }) => {
 
             {/* Popup*/} 
             {isOpen && (
-                <div className="position-absolute bg-light shadow rounded mt-1" style={{ width: '320px', zIndex: 1000, left: 0, top: '100%' }} >
+                <div className="position-absolute shadow rounded mt-1" style={{ width: '320px', zIndex: 1000, left: 0, top: '100%', backgroundColor: backgroundColor }} >
                     {/* Menu Items */}
                     <div className="p-2">
                         {/* Add Event Button */}
