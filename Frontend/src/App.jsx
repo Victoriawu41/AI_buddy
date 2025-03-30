@@ -36,6 +36,7 @@ function App() {
             path="/home"
             element={<HomePage />}
           ></Route>
+          <Route path="/quercus-scraper" element={<CourseInfoPage />} />
           <Route path="/chat" element={<PrivateRoute element={Chat} />}></Route>
           <Route
             path="/calendar"

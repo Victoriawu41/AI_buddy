@@ -51,7 +51,7 @@ const ChatSettings = ({ onClose }) => {
   };
   
   const backgroundColor = theme === 'light' ? '#ffffff' : '#454545';
-  const textFieldColour = theme === 'light' ? '#ffffff' : "#706f6f";
+  const textFieldColour = theme === 'light' ? '#ffffff' : "#303030";
   const colour = theme === 'light' ? 'black' : '#dedede'
 
   return (
