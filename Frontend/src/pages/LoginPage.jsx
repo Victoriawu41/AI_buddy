@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Login.css";
 
+import { ThemeContext } from '../ThemeContext';
+import { useContext } from 'react';
+
 /**
  * LoginPage component renders a login and registration form.
  * It allows users to either log in or create a new account.
@@ -29,7 +32,8 @@ const LoginPage = () => {
   const [pass, setPass] = useState("");
   const [email, setEmail] = useState("");
   const [confirmpass, setConfirm] = useState("");
-  const [theme, setTheme] = useState('light');
+  // const [theme, setTheme] = useState('light');
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   const loginEndpoint = "http://localhost:8000/auth/login";
   const registerEndpoint = "http://localhost:8000/auth/register";
@@ -208,9 +212,9 @@ const LoginPage = () => {
     }
   };
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
-  };
+  // const toggleTheme = () => {
+  //   setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  // };
 
   return (
     <div className={`login-container ${theme}`}>
@@ -224,6 +228,7 @@ const LoginPage = () => {
           buttonText={isLogin ? "Login" : "Register"}
           clickHandler={isLogin ? loginHandler : registerHandler}
         ></TextForm>
+        <div style={{ height: '20px' }}></div>
         <button className="btn btn-link" onClick={switchHandler}>
           {isLogin ? "Don't have an account" : "Already have an account?"}
         </button>

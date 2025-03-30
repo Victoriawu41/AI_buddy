@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar as ReactCalendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./Popup.css";
 import axios from "axios";
+
+import { ThemeContext } from '../../ThemeContext';
+import { useContext } from 'react';
 
 const BigCalendar = ({ events, onEventChange }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +16,12 @@ const BigCalendar = ({ events, onEventChange }) => {
     end: "",
     description: "",
   });
+
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  
+  useEffect(() => {
+      document.body.className = theme;
+  }, [theme]);
 
   const handleSelectEvent = (event) => {
     // Format dates for datetime-local input
@@ -70,6 +79,10 @@ const BigCalendar = ({ events, onEventChange }) => {
     }
   }
 
+  const backgroundColor = theme === 'light' ? '#ffffff' : '#454545';
+  const textFieldColour = theme === 'light' ? '#ffffff' : "#706f6f";
+  const colour = theme === 'light' ? 'black' : '#dedede'
+  
   return (
     <div className='position-relative'>
       {/* Big Calendar */}

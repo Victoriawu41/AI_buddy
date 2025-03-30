@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './ChatSettings.css';
 import axios from 'axios';
 
+import { ThemeContext } from '../ThemeContext';
+import { useContext } from 'react';
+
 const ChatSettings = ({ onClose }) => {
   const [settings, setSettings] = useState({
     assistantName: '',
@@ -10,6 +13,9 @@ const ChatSettings = ({ onClose }) => {
     userSystemPrompt: '',
   });
   const [loading, setLoading] = useState(true); // State to manage loading
+
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  
 
   useEffect(() => {
     // Fetch current settings from the back end
@@ -43,10 +49,14 @@ const ChatSettings = ({ onClose }) => {
         console.error('Error saving settings:', error);
       });
   };
+  
+  const backgroundColor = theme === 'light' ? '#ffffff' : '#454545';
+  const textFieldColour = theme === 'light' ? '#ffffff' : "#706f6f";
+  const colour = theme === 'light' ? 'black' : '#dedede'
 
   return (
     <div className="chat-settings-overlay">
-      <div className="chat-settings">
+      <div className="chat-settings" style={{background: backgroundColor}}>
         <h2>Chat Settings</h2>
         {loading ? (
           <div>Loading...</div> // Show loading indicator while fetching data
@@ -61,6 +71,7 @@ const ChatSettings = ({ onClose }) => {
                 value={settings.assistantName}
                 onChange={handleChange}
                 className="form-control"
+                style={{ backgroundColor: textFieldColour, color: colour}}
               />
             </div>
             <div className="form-group">
@@ -72,6 +83,7 @@ const ChatSettings = ({ onClose }) => {
                 onChange={handleChange}
                 className="form-control"
                 rows="3"
+                style={{ backgroundColor: textFieldColour, color: colour}}
               />
             </div>
             <div className="form-group">
@@ -83,6 +95,7 @@ const ChatSettings = ({ onClose }) => {
                 value={settings.userName}
                 onChange={handleChange}
                 className="form-control"
+                style={{ backgroundColor: textFieldColour, color: colour}}
               />
             </div>
             <div className="form-group">
@@ -94,6 +107,7 @@ const ChatSettings = ({ onClose }) => {
                 onChange={handleChange}
                 className="form-control"
                 rows="3"
+                style={{ backgroundColor: textFieldColour, color: colour}}
               />
             </div>
             <button className="btn btn-primary" onClick={handleSave}>Save</button>

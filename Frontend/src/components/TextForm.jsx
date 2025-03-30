@@ -36,6 +36,7 @@ const TextForm = ({ formArray, buttonText, clickHandler }) => {
             helperText={field.helperText}
           />
         ))}
+        <div style={{ height: '10px' }}></div>
         <button type="submit" className="btn btn-primary">
           {buttonText}
         </button>

@@ -14,6 +14,10 @@ import Toast from './components/Toast';
 import Logout from "./Components/Logout";
 
 
+import { ThemeProvider } from './ThemeContext';
+
+
+
 function App() {
   useEffect(() => {
     reminderService.start();
@@ -21,25 +25,27 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Toast /> {/* Add Toast component here */}
-      <Routes>
-        <Route path="/" element={<Navigate to="/home" />} />
-        <Route path="/login" element={<LoginPage />}></Route>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Toast /> {/* Add Toast component here */}
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" />} />
+          <Route path="/login" element={<LoginPage />}></Route>
 
-        <Route
-          path="/home"
-          element={<HomePage />}
-        ></Route>
-        <Route path="/chat" element={<PrivateRoute element={Chat} />}></Route>
-        <Route
-          path="/calendar"
-          element={<PrivateRoute element={Calendar} />}
-        ></Route>
-        <Route path="/quercus-scraper" element={<CourseInfoPage />} />
-        <Route path="/logout" element={<Logout />} />
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/home"
+            element={<HomePage />}
+          ></Route>
+          <Route path="/chat" element={<PrivateRoute element={Chat} />}></Route>
+          <Route
+            path="/calendar"
+            element={<PrivateRoute element={Calendar} />}
+          ></Route>
+          <Route path="/logout" element={<Logout />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
+
   );
 }
 

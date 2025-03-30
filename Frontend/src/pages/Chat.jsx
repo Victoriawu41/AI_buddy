@@ -7,11 +7,17 @@ import { Markdown } from '../widgets/Markdown'
 import ChatSettings from '../widgets/ChatSettings' // Import the new ChatSettings component
 import { notify, requestNotificationPermission } from '../utils/notifications' // Import notification utilities
 
+import { ThemeContext } from '../ThemeContext';
+import { useContext } from 'react';
+
 const Chat = () => {
   const [chatHistory, setChatHistory] = useState([]);           // Chat history
   const [inputMessage, setInputMessage] = useState('');         // Request
   const [showSettings, setShowSettings] = useState(false); // State to manage settings menu visibility
   const [uploadSound] = useState(new Audio('/sounds/notification.mp3')); // Sound for upload notification
+
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  
 
   useEffect(() => {
     // Request notification permission when component mounts
@@ -133,8 +139,16 @@ const Chat = () => {
     return <Markdown content={message} />;
   }
 
+  const backgroundColor = theme === 'light' ? '#ffffff' : '#454545';
+  const bgc = theme === 'light' ? '#ffffff' : "#bababa";
+
   return (
     <div style={{ position: 'relative', height: '100vh' }}>
+
+      <button className="theme-toggle" onClick={toggleTheme}>
+        {theme === 'light' ? 'Dark' : 'Light'}
+      </button>
+
       <button className="btn btn-secondary settings-button" onClick={() => setShowSettings(true)} style={{ borderRadius: '10px' }}>Settings</button>
       <div className="messages custom-markdown" style={{ paddingBottom: '80px', overflowY: 'auto', padding: '20px 240px', height: 'calc(100% - 80px)' }}>
         {chatHistory.map((message, index) => (
@@ -144,7 +158,7 @@ const Chat = () => {
         ))}
       </div>
       
-      <div className="d-flex" style={{ position: 'absolute', bottom: 0, width: '100%', background: '#fff', padding: '20px 400px', boxShadow: '0 -2px 5px rgba(0,0,0,0.1)' }}>
+      <div className="d-flex" style={{ position: 'absolute', bottom: 0, width: '100%', background: backgroundColor, padding: '20px 400px', boxShadow: '0 -2px 5px rgba(0,0,0,0.1)' }}>
         <label className="btn btn-secondary me-2">
           +
           <input type="file" style={{ display: 'none' }} onChange={handleFileUpload} />
@@ -155,7 +169,7 @@ const Chat = () => {
           value={inputMessage}
           onChange={handleInputChange}
           rows="1"
-          style={{ overflow: 'hidden', maxHeight: '600px', borderRadius: '10px' }}
+          style={{ overflow: 'hidden', maxHeight: '600px', borderRadius: '10px' , backgroundColor: bgc}}
         />
         <button className="btn btn-primary" onClick={handleSend} style={{ borderRadius: '10px' }}>Send</button>
       </div>
