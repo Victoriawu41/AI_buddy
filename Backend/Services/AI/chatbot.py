@@ -47,34 +47,11 @@ class Chatbot:
         self.check_thread = None
         self.start_notification_checker()
 
-        # try:
-        #     with httpx.Client() as client:
-        #         response = client.get("http://localhost:5001/user", headers={"Cookie": "access_token=" + token})
-        #         if response.status_code == 200:
-        #             response_data = response.json()
-        #             self.user_id = response_data.get("id")
-        #         else:
-        #             print(f"Failed to fetch user data: {response.status_code}")
-        # except Exception as e:
-        #     print(f"Error fetching user data: {e}")
-
     def get_messages(self):
         conn = sqlite3.connect('chat.db')
         cursor = conn.cursor()
-        #response = "{}"
-        # user_id = -999
         result = []
-        # try:
-        #     with httpx.Client() as client:
-        #         response = client.get("http://localhost:5001/user", headers={"Cookie": "access_token=" + token})
-        #         if response.status_code == 200:
-        #             response_data = response.json()
-        #             user_id = response_data.get("id")
-        #         else:
-        #             print(f"Failed to fetch user data: {response.status_code}")
-        # except Exception as e:
-        #     print(f"Error fetching user data: {e}")
-        
+    
         cursor.execute("SELECT * FROM chats WHERE user_id = " + str(self.user_id))
 
         rows = cursor.fetchall()
