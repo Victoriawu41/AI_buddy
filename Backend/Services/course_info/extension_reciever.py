@@ -23,7 +23,8 @@ def extension_reciever():
     env_dict["WIKI_PAGE"].pop("body")
     json.dump(env_dict, open('debug_files/info.json', 'w'), indent=2)
 
-    course_syllabus = process_pdf(f"../uploads/{syllabus_file_name}")
+    pdf_directory = Path(__file__).parent.parent.parent / 'uploads' / syllabus_file_name
+    course_syllabus = process_pdf(pdf_directory)
 
     query_llm(json.dumps(env_dict), md(body), course_syllabus)
 
