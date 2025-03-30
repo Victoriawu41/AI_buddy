@@ -3,7 +3,11 @@ from flask_cors import CORS
 from course_info import get_all_course_ids, get_all_course_info
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for cross-origin requests
+# Replace basic CORS with specific configuration
+CORS(app, resources={r"/*": {
+    "origins": "http://localhost:5173",  # Frontend URL
+    "supports_credentials": True
+}})
 
 @app.route('/course-ids', methods=['GET'])
 def course_ids():
