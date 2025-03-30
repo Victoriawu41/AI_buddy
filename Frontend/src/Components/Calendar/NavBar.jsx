@@ -56,6 +56,9 @@ const NavBar = ({ theme }) => {
               <Link to="/calendar" className={`navbar-item ${theme}`} onClick={() => setIsNavVisible(false)}>
                 Calendar
               </Link>
+              <Link to="/quercus-scraper" className={`navbar-item ${theme}`} onClick={() => setIsNavVisible(false)}>
+                Quercus Scraper
+              </Link>
               <Link to="/logout" className={`navbar-item ${theme} logout-link`}>
                 Logout
               </Link>
