@@ -13,8 +13,17 @@
   }
   
   /* Centered popup box */
-  .popup-content {
+  .popup-content.light {
     background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .popup-content.dark {
+    background: rgb(25, 25, 25);
     padding: 20px;
     border-radius: 8px;
     width: 400px;

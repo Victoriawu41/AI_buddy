@@ -98,7 +98,7 @@ const BigCalendar = ({ events, onEventChange }) => {
       {/* Overlay Editing Popup */}
       {isOpen && (
         <div className="popup-overlay" onClick={() => setIsOpen(false)}>
-          <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+          <div className={`popup-content ${theme}`} onClick={(e) => e.stopPropagation()}>
             <h3 style={{ fontWeight: "bold" }}>Edit Event</h3>
             <form onSubmit={updateEvent}>
               <label style={{ display: "block", marginBottom: "8px" }}>
