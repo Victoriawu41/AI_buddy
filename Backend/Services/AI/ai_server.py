@@ -171,7 +171,7 @@ def chat():
             if block_type == "csv" or block_type == "calendar":
                 for evt in parse_csv_events(block_content):
                     with httpx.Client() as client:
-                        client.post("http://localhost:8080/events", json=evt, headers={"Cookie:" "access_token=" + token})
+                        client.post("http://localhost:8080/events", json=evt, headers={"Cookie": "access_token=" + token})
             else:
                 print(f"Found {block_type} block:")
                 print(block_content)
