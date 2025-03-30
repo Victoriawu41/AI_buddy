@@ -13,42 +13,71 @@ function populateSyllabusDropdown() {
     // Show loading message in the dropdown
     dropdown.innerHTML = '<option value="">Loading syllabus files...</option>';
     
-    fetch('http://localhost:8000/quercus_scrape/syllabus_files')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+    // First fetch the authentication cookie
+    chrome.runtime.sendMessage({ action: "fetchCookie" }, (response) => {
+        if (!response || !response.success) {
+            dropdown.innerHTML = '<option value="">Authentication error</option>';
+            statusEl.textContent = response ? response.error : 'Failed to fetch session cookie.';
+            return;
+        }
+        
+        // Then make the API call with the cookie
+        fetch('http://localhost:8000/quercus_scrape/syllabus_files', {
+            headers: {
+                'cookies': response.cookies
             }
-            return response.json();
         })
-        .then(data => {
-            // Clear the dropdown
-            dropdown.innerHTML = '<option value="">Select a syllabus file...</option>';
-            
-            // Extract the pdf_files array from the response
-            const files = data.pdf_files;
-            
-            if (Array.isArray(files)) {
-                // Add each file as an option
-                files.forEach(file => {
-                    const option = document.createElement('option');
-                    option.value = file;
-                    option.textContent = file;
-                    dropdown.appendChild(option);
-                });
-                
-                if (files.length === 0) {
-                    dropdown.innerHTML = '<option value="">No syllabus files available</option>';
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        dropdown.innerHTML = '<option value="">Authentication required</option>';
+                        statusEl.textContent = 'Please log in at ';
+                        
+                        const link = document.createElement('a');
+                        link.href = 'http://localhost:5173';
+                        link.textContent = 'http://localhost:5173';
+                        link.target = '_blank'; // Open in new tab
+                        
+                        // Append the link to status element
+                        statusEl.appendChild(link);
+                        return null;
+                    }
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-            } else {
-                console.error('Expected pdf_files array but received:', data);
-                dropdown.innerHTML = '<option value="">Error: Invalid response format</option>';
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching syllabus files:', error);
-            dropdown.innerHTML = '<option value="">Error loading files</option>';
-            statusEl.textContent = `Failed to load syllabus files: ${error.message}`;
-        });
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return; // If data is null (due to 401), exit early
+                
+                // Clear the dropdown
+                dropdown.innerHTML = '<option value="">Select a syllabus file...</option>';
+                
+                // Extract the pdf_files array from the response
+                const files = data.pdf_files;
+                
+                if (Array.isArray(files)) {
+                    // Add each file as an option
+                    files.forEach(file => {
+                        const option = document.createElement('option');
+                        option.value = file;
+                        option.textContent = file;
+                        dropdown.appendChild(option);
+                    });
+                    
+                    if (files.length === 0) {
+                        dropdown.innerHTML = '<option value="">No syllabus files available</option>';
+                    }
+                } else {
+                    console.error('Expected pdf_files array but received:', data);
+                    dropdown.innerHTML = '<option value="">Error: Invalid response format</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching syllabus files:', error);
+                dropdown.innerHTML = '<option value="">Error loading files</option>';
+                statusEl.textContent = `Failed to load syllabus files: ${error.message}`;
+            });
+    });
 }
 
 document.getElementById('scrapeBtn').addEventListener('click', () => {
