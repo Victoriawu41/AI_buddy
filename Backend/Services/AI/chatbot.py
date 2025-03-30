@@ -7,6 +7,8 @@ from markitdown import MarkItDown
 import threading
 from collections import deque
 import time
+import sqlite3
+import requests
 
 CHATBOT_NAME = "Study Buddy"
 SYSTEM_PROMPT = f'''You are {CHATBOT_NAME}, a witty character who loves to engage in fun and lively conversations. You can help the user make schedules. To add an event to the calendar, write a CSV file, put the content between ```calendar\\n``` like a code block. For example: ```calendar
@@ -26,7 +28,8 @@ class ChatbotSettings:
         self.user_system_prompt = USER_SYSTEM_PROMPT
         
 class Chatbot:
-    def __init__(self):
+    def __init__(self, user_id): 
+        self.user_id = user_id
         self.api_key = os.getenv("TOGETHER_API_KEY")
         self.base_url = "https://api.together.xyz/v1"
         # self.base_url = "https://api.groq.com/openai/v1"
@@ -35,7 +38,7 @@ class Chatbot:
 
         # Build prompt
         self.system_messages = []
-        self.messages = []
+        self.messages = self.get_messages()
         self.settings = ChatbotSettings()
         self.calendar_data = []
 
@@ -43,6 +46,19 @@ class Chatbot:
         self.is_running = False
         self.check_thread = None
         self.start_notification_checker()
+
+    def get_messages(self):
+        conn = sqlite3.connect('chat.db')
+        cursor = conn.cursor()
+        result = []
+    
+        cursor.execute("SELECT * FROM chats WHERE user_id = " + str(self.user_id))
+
+        rows = cursor.fetchall()
+        conn.close()
+        for row in rows:
+            result.append({"role": row[1], "content": row[2]})
+        return result
         
     def get_curr_date_time(self):
         utc_now = datetime.utcnow()
@@ -95,13 +111,13 @@ class Chatbot:
         url = f"{self.base_url}/chat/completions"
 
         current_time = self.get_curr_date_time().strftime("%Y-%m-%d %H:%M:%S")
-        self.messages.append({"role": "user", "content": f"Current Time: {current_time} EST"})
-        self.messages.append({"role": "user", "content": f"{self.settings.user_name}:"})
+        self.add_message({"role": "user", "content": f"Current Time: {current_time} EST"})
+        self.add_message({"role": "user", "content": f"{self.settings.user_name}:"})
         for msg in new_messages:
-            self.messages.append({"role": msg["role"], "content": msg["content"]})
+            self.add_message({"role": msg["role"], "content": msg["content"]})
             if msg["content"] == "clear":
                 self.messages = []
-        self.messages.append({"role": "assistant", "content": f"{self.settings.chatbot_name}:"})
+        self.add_message({"role": "assistant", "content": f"{self.settings.chatbot_name}:"})
 
         print(">>>>>>>", self.messages)
 
@@ -133,19 +149,27 @@ class Chatbot:
                                     full_response.append(chunk)
                                     yield chunk
 
-                    self.messages.append({"role": "assistant", "content": f"{''.join(full_response)}"})
+                    self.add_message({"role": "assistant", "content": f"{''.join(full_response)}"})
 
         except httpx.HTTPStatusError as ex:
             ex.response.read()
             error_content = ex.response.text
             yield f"HTTP error occurred: {ex.response.status_code} - {error_content}", None
 
+    def add_message(self, message_data):
+        self.messages.append(message_data)
+        conn = sqlite3.connect('chat.db')
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO chats (user_id, role, content) VALUES (?, ?, ?)", (self.user_id, message_data["role"], message_data["content"]))
+        conn.commit()
+        conn.close()
+
     def add_file_to_messages(self, file_path):
         md = MarkItDown()
         result = md.convert(file_path)
         file_name = os.path.basename(file_path)
         file_content = result.text_content
-        self.messages.append({"role": "user", "content": f"```file {file_name}\n{file_content}\n```"})
+        self.add_message({"role": "user", "content": f"```file {file_name}\n{file_content}\n```"})
 
     def build_messages(self):
         final_msgs = []
