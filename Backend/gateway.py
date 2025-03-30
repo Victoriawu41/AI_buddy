@@ -13,6 +13,8 @@ MICROSERVICES = {
     'auth': 'http://localhost:5001',
     'ai': 'http://127.0.0.1:5000',
     'calendar': 'http://localhost:8080',
+    'course_info': 'http://localhost:5003',
+    'quercus_scrape': 'http://localhost:5002'
     # Add other microservices here
 }
 def verify_token(token):
@@ -42,7 +44,7 @@ def gateway(service, path):
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response, 200  
     
-    protected_services = ['ai', 'calendar']
+    protected_services = ['ai', 'calendar', 'course_info', 'quercus_scrape']
 
     #check authentification
     if service in protected_services:
@@ -65,11 +67,11 @@ def gateway(service, path):
         resp = requests.get(url, params=request.args, headers=headers, cookies=cookies, stream=True)
     elif method == 'POST':
         if request.content_type and request.content_type.startswith('multipart/form-data'):
-            resp = requests.post(url, files=request.files, data=request.form, stream=True)
+            resp = requests.post(url, files=request.files, data=request.form, cookies=cookies, stream=True)
         else:
             # Handle both JSON and empty bodies
             data = request.json if request.is_json else {}
-            resp = requests.post(url, json=data, stream=True)
+            resp = requests.post(url, json=data, cookies=cookies, stream=True)
 
     elif method == 'PUT':
         resp = requests.put(url, json=request.json, headers=headers, cookies=cookies, stream=True)

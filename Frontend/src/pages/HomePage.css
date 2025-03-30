@@ -69,8 +69,7 @@ html, body {
   /* Light Mode Styles */
   body.light {
     background-color: #f8f9fa;
-    color: #000000;
-    height: 100%
+    color: #212529;
   }
   
   .container.light {
@@ -87,8 +86,7 @@ html, body {
   /* Dark Mode Styles */
   body.dark {
     background-color: #1e1e1e;
-    color: #ffffff;
-    height: 100%
+    color: #e0e0e0;
   }
   
   .container.dark {

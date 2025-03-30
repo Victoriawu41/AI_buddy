@@ -1,0 +1,8 @@
+beautifulsoup4
+markdownify
+flask
+langchain-together
+pydantic
+pymupdf4llm
+flask-cors
+sqlalchemy

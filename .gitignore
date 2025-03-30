@@ -1,6 +1,8 @@
 # Ignore Python cache folders
 __pycache__/
 *.py[cod]
+.venv
 # Ignore database files
 *.db
 Backend/Services/AI/uploads
+.venv
