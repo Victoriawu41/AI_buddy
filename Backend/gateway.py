@@ -44,7 +44,7 @@ def gateway(service, path):
         response.headers.add("Access-Control-Allow-Credentials", "true")
         return response, 200  
     
-    protected_services = ['ai', 'calendar', 'course_info']
+    protected_services = ['ai', 'calendar', 'course_info', 'quercus_scrape']
 
     #check authentification
     if service in protected_services:

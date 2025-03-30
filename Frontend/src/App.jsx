@@ -8,6 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import Chat from "./pages/Chat";
 import Calendar from "./pages/CalendarPage";
+import CourseInfoPage from "./pages/CourseInfoPage";
 import PrivateRoute from "./Components/PrivateRoute";
 import Toast from './components/Toast';
 import Logout from "./Components/Logout";
@@ -35,6 +36,7 @@ function App() {
           path="/calendar"
           element={<PrivateRoute element={Calendar} />}
         ></Route>
+        <Route path="/course-info" element={<CourseInfoPage />} />
         <Route path="/logout" element={<Logout />} />
       </Routes>
     </BrowserRouter>
