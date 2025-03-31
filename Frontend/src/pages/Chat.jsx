@@ -15,6 +15,7 @@ const Chat = () => {
   const [inputMessage, setInputMessage] = useState('');         // Request
   const [showSettings, setShowSettings] = useState(false); // State to manage settings menu visibility
   const [uploadSound] = useState(new Audio('/sounds/notification.mp3')); // Sound for upload notification
+  const [isProcessing, setIsProcessing] = useState(false); // Track if a message is being processed
 
   const { theme, toggleTheme } = useContext(ThemeContext);
   
@@ -47,9 +48,12 @@ const Chat = () => {
 
   const handleSend = async (e) => {
     e.preventDefault();
-    if (!inputMessage.trim()) {
+    if (!inputMessage.trim() || isProcessing) {
       return;
     }
+    
+    setIsProcessing(true); // Set processing flag to prevent multiple requests
+    
     const newMessage = { role: 'user', content: inputMessage, style: { borderRadius: '10px', padding: '10px', marginBottom: '10px'} };
     const loadingMessage = { role: 'bot', content: '<SPINNER>', style: { borderRadius: '10px', padding: '10px', marginBottom: '10px' } };
     setChatHistory([...chatHistory, newMessage, loadingMessage]);
@@ -89,6 +93,8 @@ const Chat = () => {
       });
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsProcessing(false); // Reset processing flag when done
     }
   }
 
@@ -170,8 +176,16 @@ const Chat = () => {
           onChange={handleInputChange}
           rows="1"
           style={{ overflow: 'hidden', maxHeight: '600px', borderRadius: '10px' , backgroundColor: bgc}}
+          disabled={isProcessing} // Disable input while processing
         />
-        <button className="btn btn-primary" onClick={handleSend} style={{ borderRadius: '10px' }}>Send</button>
+        <button 
+          className="btn btn-primary" 
+          onClick={handleSend} 
+          style={{ borderRadius: '10px' }}
+          disabled={isProcessing} // Disable send button while processing
+        >
+          {isProcessing ? 'Working...' : 'Send'}
+        </button>
       </div>
       {showSettings && <ChatSettings onClose={() => setShowSettings(false)} />} {/* Render ChatSettings if showSettings is true */}
     </div>
