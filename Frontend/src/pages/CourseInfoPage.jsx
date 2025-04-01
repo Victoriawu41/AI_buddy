@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './CourseInfoPage.css';
 import { Markdown } from '../widgets/Markdown';
+import NavBar from "../Components/Calendar/Navbar";
+import { ThemeContext } from '../ThemeContext';
 
 const CourseInfoPage = () => {
   const [courses, setCourses] = useState([]);
@@ -8,6 +10,7 @@ const CourseInfoPage = () => {
   const [courseInfo, setCourseInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { theme, toggleTheme } = useContext(ThemeContext);
 
   // Fetch all course IDs when component mounts
   useEffect(() => {
@@ -356,59 +359,71 @@ const CourseInfoPage = () => {
   };
 
   return (
-    <div className="course-info-page">
-      <h1>Course Information</h1>
-      
-      {/* Course selection dropdown */}
-      <div className="course-selector">
-        <label htmlFor="course-select">Select a course:</label>
-        <select 
-          id="course-select" 
-          value={selectedCourse || ''} 
-          onChange={(e) => setSelectedCourse(e.target.value)}
-        >
-          <option value="">-- Select a course --</option>
-          {courses.map((course) => (
-            <option key={course} value={course}>{course}</option>
-          ))}
-        </select>
+    <div className="main-wrapper">
+      <NavBar theme={theme} />
+      <button className="theme-toggle" onClick={toggleTheme}>
+        {theme === 'light' ? 'Dark' : 'Light'}
+      </button>
+      <div className={`course-info-container ${theme}`} style={{ 
+        overflowY: 'auto', 
+        height: 'calc(100vh - 60px)',  // Adjust based on navbar height
+        padding: '20px'
+      }}>
+        <div className="course-info-page">
+          <h1>Course Information</h1>
+          
+          {/* Course selection dropdown */}
+          <div className="course-selector">
+            <label htmlFor="course-select">Select a course:</label>
+            <select 
+              id="course-select" 
+              value={selectedCourse || ''} 
+              onChange={(e) => setSelectedCourse(e.target.value)}
+            >
+              <option value="">-- Select a course --</option>
+              {courses.map((course) => (
+                <option key={course} value={course}>{course}</option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Loading indicator */}
+          {loading && (
+            <div className="loading-indicator">
+              <div className="spinner"></div>
+              <p>Loading...</p>
+            </div>
+          )}
+          
+          {/* Error message */}
+          {error && (
+            <div className="error-message">
+              <p>Error: {error}</p>
+              <button onClick={() => selectedCourse ? fetchCourseInfo(selectedCourse) : fetchCourses()}>
+                Try Again
+              </button>
+            </div>
+          )}
+          
+          {/* Course information display */}
+          {!loading && !error && courseInfo && renderCourseInfo()}
+          
+          {/* Prompt to select a course if none selected */}
+          {!loading && !error && !selectedCourse && courses.length > 0 && (
+            <div className="select-prompt">
+              <p>Please select a course from the dropdown above to view its information.</p>
+            </div>
+          )}
+          
+          {/* No courses available message */}
+          {!loading && !error && courses.length === 0 && (
+            <div className="no-courses">
+              <p>No courses are currently available.</p>
+              <button onClick={fetchCourses}>Refresh</button>
+            </div>
+          )}
+        </div>
       </div>
-      
-      {/* Loading indicator */}
-      {loading && (
-        <div className="loading-indicator">
-          <div className="spinner"></div>
-          <p>Loading...</p>
-        </div>
-      )}
-      
-      {/* Error message */}
-      {error && (
-        <div className="error-message">
-          <p>Error: {error}</p>
-          <button onClick={() => selectedCourse ? fetchCourseInfo(selectedCourse) : fetchCourses()}>
-            Try Again
-          </button>
-        </div>
-      )}
-      
-      {/* Course information display */}
-      {!loading && !error && courseInfo && renderCourseInfo()}
-      
-      {/* Prompt to select a course if none selected */}
-      {!loading && !error && !selectedCourse && courses.length > 0 && (
-        <div className="select-prompt">
-          <p>Please select a course from the dropdown above to view its information.</p>
-        </div>
-      )}
-      
-      {/* No courses available message */}
-      {!loading && !error && courses.length === 0 && (
-        <div className="no-courses">
-          <p>No courses are currently available.</p>
-          <button onClick={fetchCourses}>Refresh</button>
-        </div>
-      )}
     </div>
   );
 };
