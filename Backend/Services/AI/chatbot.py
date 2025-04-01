@@ -169,6 +169,11 @@ class Chatbot:
         result = md.convert(file_path)
         file_name = os.path.basename(file_path)
         file_content = result.text_content
+        
+        # Check if file content is too big (set limit to 500KB for processed content)
+        if len(file_content) > 500 * 1024:  # 500KB in bytes
+            raise ValueError("File content is too large after processing. Maximum content size is 500KB.")
+            
         self.add_message({"role": "user", "content": f"```file {file_name}\n{file_content}\n```"})
 
     def build_messages(self):
@@ -186,6 +191,17 @@ class Chatbot:
             
         final_msgs.extend(self.messages)
 
+        # Limit messages to the last 40
+        final_msgs = final_msgs[-40:]
+        
+        THRESHOLD = 10000
+        cutoff = len(final_msgs) - 10
+        for i in range(cutoff if cutoff > 0 else 0):
+            content = final_msgs[i]["content"]
+            if len(content) > THRESHOLD:
+                first_line = content.splitlines()[0]
+                final_msgs[i]["content"] = first_line + " this messages is too large and you can't remember it clearly"
+                
         return final_msgs
 
     def apply_settings(self, settings_dict):

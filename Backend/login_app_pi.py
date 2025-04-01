@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from models import db, User#, FileMetadata
-from dao import UserDAO
+from models import db, User  # , FileMetadata
+from dao.user_dao import UserDAO
 import os
 import jwt
 import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'temp_key' # TODO: setup secure way to pass secret key
+app.config['SECRET_KEY'] = 'temp_key'  # TODO: setup secure way to pass secret key
 # app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key') <- USING ENV VARIABLE
 
 CORS(app, supports_credentials=True)
@@ -28,14 +28,16 @@ db.init_app(app)
 with app.app_context():
     db.create_all()  # Create tables in the PostgreSQL database
 
+
 def generateToken(user_id):
     payload = {
         'user_id': user_id,
         'iat': datetime.datetime.now(),
-        'exp': datetime.datetime.now() + datetime.timedelta(days=7) # 7 day expiration
+        'exp': datetime.datetime.now() + datetime.timedelta(days=7)  # 7 day expiration
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
     return token
+
 
 def verify_token(token):
     """
@@ -49,6 +51,7 @@ def verify_token(token):
         return None
     except jwt.InvalidTokenError:
         return None
+
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -65,6 +68,7 @@ def register():
     UserDAO.create_user(username, email, password)
     return jsonify({"message": "User registered successfully!"}), 201
 
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -78,6 +82,7 @@ def login():
         return response, 200
     return jsonify({"error": "Invalid credentials"}), 401
 
+
 @app.route('/verify', methods=['GET'])
 # used to verify access token
 def verify():
@@ -87,6 +92,48 @@ def verify():
     if not verify_token(token):
         return jsonify({"error": "Authentication token invalid or expired"}), 401
     return jsonify({"message": "Authentification successful"}), 200
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    print("test")
+    response = jsonify({"message": "Logout successful!"})
+    response.set_cookie(
+        "access_token", "",  # Clear the cookie
+        httponly=True,  # Keep it secure
+        secure=False,  # Set to True in production with HTTPS
+        samesite="Lax",  # Allow cross-origin cookies
+        path="/",  # Ensure it's applied across all routes
+        domain="localhost",  # Same as login cookie
+        expires=0  # Expire the cookie immediately
+    )
+    return response, 200
+
+
+@app.route('/user', methods=['GET'])
+def get_user_info():
+    # call http://localhost:5001/user from frontend with cookie
+    token = request.cookies.get("access_token")
+
+    if not token:
+        return jsonify({"error": "Authentication required"}), 401
+
+    payload = verify_token(token)
+
+    if not payload:
+        return jsonify({"error": "Authentication token invalid or expired"}), 401
+
+    user = UserDAO.get_user_by_id(payload['user_id'])
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email
+    }), 200
+
 
 """
 @app.route('/upload', methods=['POST'])

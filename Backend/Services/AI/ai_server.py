@@ -209,6 +209,14 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
     if file:
+        # Check file size - limit to 1MB
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)  # Reset file pointer to beginning
+        
+        if file_size > 1024 * 1024:  # 1MB in bytes
+            return jsonify({"error": "File too large. Maximum size is 1MB"}), 413
+        
         filename = secure_filename(filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
@@ -216,10 +224,14 @@ def upload_file():
         print(filepath)
 
         # Convert the file to text and add to messages
-        chatbot.add_file_to_messages(filepath)
-
-        return jsonify({"message": "File uploaded successfully", "filename": filename}), 200
-
+        try:
+            chatbot.add_file_to_messages(filepath)
+            return jsonify({"message": "File uploaded successfully", "filename": filename}), 200
+        except Exception as e:
+            # Remove the file if processing failed
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            return jsonify({"error": f"Failed. File not supported."}), 500
 
 @app.route('/chat/settings', methods=['POST'])
 def set_settings():
